@@ -13,5 +13,7 @@ numpy==2.5.5
 matplotlib==3.11.2
 pytest==9.2.0
 # Tùy chọn: MySQL (Chương 7) -> pip install PyMySQL, đặt DEV_DATABASE_URL=mysql+pymysql://user:pass@localhost/unijob
-# Triển khai: gunicorn
+# Triển khai: gunicorn + Postgres
 gunicorn==23.0.0
+# Postgres khi deploy (Render/Neon): DATABASE_URL=postgresql://...
+psycopg[binary]==3.2.13

@@ -12,6 +12,15 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
 
 
+def _db_url(url):
+    """Chuẩn hóa URL Postgres do Render/Neon cấp (postgres://...) sang driver psycopg 3 của SQLAlchemy."""
+    if url and url.startswith('postgres://'):
+        url = 'postgresql://' + url[len('postgres://'):]
+    if url and url.startswith('postgresql://'):
+        url = 'postgresql+psycopg://' + url[len('postgresql://'):]
+    return url
+
+
 def _bool(name, default=False):
     value = os.environ.get(name)
     if value is None:
@@ -42,6 +51,7 @@ class Config:
     # Form chỉ nhận PDF <= 5 MB (FileSize); request > 6 MB bị Flask chặn luôn (lỗi 413)
     MAX_CONTENT_LENGTH = 6 * 1024 * 1024
     CV_UPLOAD_FOLDER = os.environ.get('CV_UPLOAD_FOLDER')    # mặc định: instance/uploads/cv
+    CV_STORAGE = os.environ.get('CV_STORAGE') or 'disk'      # disk | db (host không có ổ đĩa bền)
 
     # ---- Phân trang ----
     JOBS_PER_PAGE = 12
@@ -73,7 +83,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
+    SQLALCHEMY_DATABASE_URI = _db_url(os.environ.get('DEV_DATABASE_URL')) or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
 
@@ -88,8 +98,24 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+    SQLALCHEMY_DATABASE_URI = _db_url(os.environ.get('DATABASE_URL')) or \
         'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+    # Postgres miễn phí (Neon) tự ngắt kết nối khi rảnh -> kiểm tra kết nối trước khi dùng
+    SQLALCHEMY_ENGINE_OPTIONS = {'pool_pre_ping': True, 'pool_recycle': 280}
+    SESSION_COOKIE_SECURE = _bool('SESSION_COOKIE_SECURE', False)
+    REMEMBER_COOKIE_SECURE = SESSION_COOKIE_SECURE
+
+    @classmethod
+    def init_app(cls, app):
+        Config.init_app(app)
+        # Chạy sau reverse proxy HTTPS (Render, Railway...): lấy đúng scheme/host cho url_for(_external=True)
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+        import logging
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.INFO)
+        app.logger.addHandler(handler)
+        app.logger.setLevel(logging.INFO)
 
 
 config = {

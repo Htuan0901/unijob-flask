@@ -150,7 +150,7 @@ def seed_all():
                     description=r['description'] or r['title'], requirements=r.get('requirements'),
                     benefits='\n'.join(r.get('benefits') or []) or None, skills=';'.join(r.get('skills') or []) or None,
                     city=r['city'], job_type=r['jobType'], salary_min=r['salaryMin'], salary_max=r['salaryMax'],
-                    salary_unit=r['salaryUnit'], working_hours=r.get('workingHours'),
+                    salary_unit=r['salaryUnit'], working_hours=(r.get('workingHours') or '')[:200] or None,
                     experience_level=_exp_code(r.get('experience')), slots=rnd.randint(1, 3),
                     urgent=rnd.random() < 0.12, view_count=rnd.randint(5, 400),
                     created_at=now - timedelta(days=rnd.randint(0, 45), hours=rnd.randint(0, 23)))
