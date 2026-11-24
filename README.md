@@ -20,7 +20,7 @@ Lệnh khác: `flask test` (chạy 69 test pytest), `flask seed --reset`, `flask
 Docker: `docker build -t unijob . && docker run -p 5000:5000 unijob`.
 
 ### Bản chạy thật trên web
-Deploy lên Render (Docker) + Neon Postgres miễn phí: xem [DEPLOY.md](DEPLOY.md). Địa chỉ web: *(điền sau khi deploy)*.
+Deploy lên Render (Docker) + Neon Postgres miễn phí: xem [DEPLOY.md](DEPLOY.md). Địa chỉ web: **https://unijob-puhx.onrender.com** (gói free, lần mở đầu có thể chờ khoảng 1 phút).
 
 ### Tài khoản demo
 | Vai trò | Email | Mật khẩu |
