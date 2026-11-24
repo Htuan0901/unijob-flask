@@ -1,0 +1,29 @@
+# Render Blueprint: New > Blueprint > chọn repo này. Render đọc tệp này để tạo web service từ Dockerfile.
+# CSDL dùng Postgres miễn phí của Neon (không hết hạn): dán chuỗi kết nối vào DATABASE_URL khi Render hỏi.
+services:
+  - type: web
+    name: unijob
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: FLASK_CONFIG
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL          # postgresql://...neon.tech/neondb?sslmode=require
+        sync: false
+      - key: CV_STORAGE            # Render free không có ổ đĩa bền -> lưu CV trong Postgres
+        value: db
+      - key: SESSION_COOKIE_SECURE
+        value: "1"
+      - key: WEB_CONCURRENCY       # gói free 512 MB RAM
+        value: "2"
+      - key: LLM_PROVIDER
+        value: demo
+      - key: UNIJOB_ADMIN
+        sync: false
+      - key: EXCHANGE_API_KEY      # tùy chọn, để trống dùng open.er-api.com
+        sync: false

@@ -16,8 +16,11 @@ flask seed                       # nạp dữ liệu mẫu (~370 tin, 29 sinh vi
 flask run                        # http://127.0.0.1:5000
 ```
 
-Lệnh khác: `flask test` (chạy 67 test pytest), `flask seed --reset`, `flask ai-reindex`, `flask shell`.
+Lệnh khác: `flask test` (chạy 69 test pytest), `flask seed --reset`, `flask ai-reindex`, `flask shell`.
 Docker: `docker build -t unijob . && docker run -p 5000:5000 unijob`.
+
+### Bản chạy thật trên web
+Deploy lên Render (Docker) + Neon Postgres miễn phí: xem [DEPLOY.md](DEPLOY.md). Địa chỉ web: *(điền sau khi deploy)*.
 
 ### Tài khoản demo
 | Vai trò | Email | Mật khẩu |
@@ -50,18 +53,19 @@ unijob-flask/
 │   └── data/            # dữ liệu VietJobs đã xử lý: seed_jobs, market_stats, category_model
 ├── migrations/          # Flask-Migrate (Alembic)
 ├── desktop/             # ứng dụng Tkinter + client urllib
-└── tests/               # pytest: 67 test
+└── tests/               # pytest: 69 test
 ```
 
 ## CV PDF của sinh viên
 
 Sinh viên vào *CV của tôi* để tải CV (PDF, tối đa 5 MB). Nhà tuyển dụng và admin xem hoặc tải CV ở trang
-*Ứng viên*, *Tìm ứng viên* và hồ sơ sinh viên. Tệp lưu ở `instance/uploads/cv` (đổi bằng `CV_UPLOAD_FOLDER`).
+*Ứng viên*, *Tìm ứng viên* và hồ sơ sinh viên. Tệp lưu ở `instance/uploads/cv` (đổi bằng `CV_UPLOAD_FOLDER`), hoặc lưu trong CSDL khi đặt `CV_STORAGE=db`
+(dùng khi deploy lên host không có ổ đĩa bền).
 Tài khoản demo `sv@unijob.vn` có sẵn một CV mẫu sau khi chạy `flask seed`.
 Đã có CSDL từ bản trước: chạy `flask db upgrade` để thêm cột CV.
 
 ## Biến môi trường chính
-`SECRET_KEY`, `DEV_DATABASE_URL` (vd `mysql+pymysql://user:pass@localhost/unijob`), `MAIL_SERVER`, `MAIL_USERNAME`,
+`SECRET_KEY`, `DATABASE_URL` (production, vd Postgres), `CV_STORAGE` (`disk`/`db`), `DEV_DATABASE_URL` (vd `mysql+pymysql://user:pass@localhost/unijob`), `MAIL_SERVER`, `MAIL_USERNAME`,
 `MAIL_PASSWORD` (không đặt MAIL_SERVER → email lưu ở `instance/outbox`, xem tại Quản trị › Hộp thư đi),
 `EXCHANGE_API_KEY`, `NETWORK_ENABLED`, `LLM_PROVIDER` (`demo`/`ollama`/`openai`), `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`.
 
