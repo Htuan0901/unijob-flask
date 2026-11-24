@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Tìm ứng viên{% endblock %}
+{% from '_macros.html' import cv_buttons %}
+{% block content %}
+<div class="container">
+  <h3>Tìm ứng viên phù hợp</h3>
+  {% if my_jobs %}
+  <form class="d-flex gap-2 mb-3" method="get"><select class="form-select" name="job_id">
+    {% for j in my_jobs %}<option value="{{ j.id }}" {{ 'selected' if job and j.id == job.id }}>{{ j.title }}</option>{% endfor %}
+  </select><button class="btn btn-primary">Xem</button></form>
+  <table class="table bg-white align-middle"><thead><tr><th>Sinh viên</th><th>Ngành / trường</th><th>Kỹ năng</th><th>Phù hợp</th><th>CV</th></tr></thead><tbody>
+  {% for score, p in results %}
+    <tr><td><a href="{{ url_for('main.student_public', user_id=p.user_id) }}">{{ p.user.full_name }}</a><div class="small text-warning">{{ p.user.rating_avg|stars }}</div></td>
+      <td class="small">{{ p.major or '' }}<br>{{ p.university or '' }}</td>
+      <td>{% for s in p.skill_list[:5] %}<span class="skill">{{ s }}</span>{% endfor %}</td><td class="fw-bold text-success">{{ score }}%</td>
+      <td class="text-nowrap">{% if p.has_cv %}{{ cv_buttons(p.user_id) }}{% else %}<span class="small text-muted">—</span>{% endif %}</td></tr>
+  {% endfor %}</tbody></table>
+  {% else %}<p class="text-muted">Bạn chưa có tin đang tuyển.</p>{% endif %}
+</div>
+{% endblock %}

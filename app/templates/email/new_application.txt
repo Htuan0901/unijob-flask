@@ -1,0 +1,4 @@
+Chào {{ user.full_name }},
+
+{{ student.full_name }} vừa ứng tuyển tin "{{ job.title }}" (mức phù hợp {{ score }}%).
+Xem hồ sơ: {{ url_for('employer.applicants', job_id=job.id, _external=True) }}

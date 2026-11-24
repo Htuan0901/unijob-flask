@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Quy đổi tiền tệ{% endblock %}
+{% block content %}
+<div class="container" style="max-width:720px">
+  <h3>Quy đổi lương sang ngoại tệ</h3>
+  <form class="d-flex gap-2 mb-3" method="get">
+    <input class="form-control" type="number" name="amount" min="0" value="{{ amount }}"><span class="align-self-center">VND</span>
+    <button class="btn btn-primary">Quy đổi</button>
+  </form>
+  <table class="table bg-white">
+    <thead><tr><th>Ngoại tệ</th><th>Tỷ giá (1 VND)</th><th>Thành tiền</th></tr></thead>
+    <tbody>{% for c, r in rates.rates.items() if r %}<tr><td>{{ c }}</td><td>{{ '%.7f'|format(r) }}</td><td><strong>{{ '{:,.2f}'.format(amount * r) }}</strong></td></tr>{% endfor %}</tbody>
+  </table>
+  <p class="small text-muted">Nguồn: {{ rates.source }}{% if rates.updated %} · cập nhật {{ rates.updated }}{% endif %}.
+    Gọi API JSON bằng urllib; đặt EXCHANGE_API_KEY trong .env để dùng gói có khóa API.</p>
+</div>
+{% endblock %}

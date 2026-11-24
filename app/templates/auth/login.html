@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import field %}
+{% block title %}Đăng nhập{% endblock %}
+{% block content %}
+<div class="container" style="max-width:460px">
+  <div class="card card-body shadow-sm mt-3">
+    <h3 class="mb-3">Đăng nhập</h3>
+    <form method="post" novalidate>{{ form.hidden_tag() }}
+      {{ field(form.email, autofocus=true) }}{{ field(form.password) }}{{ field(form.remember_me) }}
+      <button class="btn btn-primary w-100">Đăng nhập</button>
+    </form>
+    <div class="d-flex justify-content-between mt-3 small">
+      <a href="{{ url_for('auth.reset_request') }}">Quên mật khẩu?</a><a href="{{ url_for('auth.register') }}">Tạo tài khoản mới</a>
+    </div>
+    <div class="alert alert-light border small mt-3 mb-0">Demo: sv@unijob.vn / Sinhvien@123 · ntd@unijob.vn / Tuyendung@123 · admin@unijob.vn / Admin@123</div>
+  </div>
+</div>
+{% endblock %}

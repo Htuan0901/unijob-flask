@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import field %}
+{% block title %}Tra cứu lương{% endblock %}
+{% block content %}
+<div class="container">
+  <h3>Tra cứu lương thị trường</h3>
+  <p class="text-muted">Dữ liệu {{ '{:,}'.format(stats.totalJobs or 0).replace(',', '.') }} tin từ bộ dữ liệu VietJobs, đơn vị triệu đồng/tháng.</p>
+  <form class="row g-2 card card-body flex-row shadow-sm mb-4" method="get">
+    <div class="col-md-4">{{ field(form.category) }}</div>
+    <div class="col-md-3">{{ field(form.experience) }}</div>
+    <div class="col-md-3">{{ field(form.city) }}</div>
+    <div class="col-md-2 d-flex align-items-end mb-3"><button class="btn btn-primary w-100">Tra cứu</button></div>
+  </form>
+  {% if data.result %}
+  <div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="stat"><div class="text-muted small">P25</div><div class="num">{{ data.result.p25 }} tr</div></div></div>
+    <div class="col-md-4"><div class="stat"><div class="text-muted small">Trung vị</div><div class="num">{{ data.result.median }} tr</div></div></div>
+    <div class="col-md-4"><div class="stat"><div class="text-muted small">P75</div><div class="num">{{ data.result.p75 }} tr</div></div></div>
+  </div>
+  <p class="small text-muted">Phạm vi: {{ data.scope }} · {{ data.result.count }} tin</p>
+  {% else %}<div class="alert alert-light border">Không đủ dữ liệu cho tổ hợp này.</div>{% endif %}
+
+  {% if suggestion %}
+  <div class="alert alert-success"><strong>Gợi ý cho tin part-time ngành {{ suggestion.category_name }}:</strong>
+    khoảng {{ suggestion.hourly|money }} đ/giờ ({{ suggestion.per_shift|money }} đ/ca 4 giờ). {{ suggestion.basis }}, {{ suggestion.sample }} mẫu. {{ suggestion.note }}</div>
+  {% endif %}
+
+  <div class="row g-4">
+    <div class="col-md-6"><h6>Theo kinh nghiệm</h6>
+      <table class="table table-sm bg-white"><thead><tr><th>Kinh nghiệm</th><th>P25</th><th>Trung vị</th><th>P75</th><th>Số tin</th></tr></thead><tbody>
+      {% for r in data.by_experience %}<tr><td>{{ exp_labels.get(r.experience, r.experience) }}{% if not r.local and form.city.data %} <small class="text-muted">(toàn quốc)</small>{% endif %}</td>
+        <td>{{ r.p25 }}</td><td><strong>{{ r.median }}</strong></td><td>{{ r.p75 }}</td><td>{{ r.count }}</td></tr>{% endfor %}
+      </tbody></table></div>
+    <div class="col-md-6"><h6>So sánh tỉnh/thành</h6>
+      <table class="table table-sm bg-white"><thead><tr><th>Tỉnh/thành</th><th>Trung vị</th><th>Số tin</th></tr></thead><tbody>
+      {% for r in data.by_city[:12] %}<tr><td>{{ r.city }}</td><td>{{ r.median }}</td><td>{{ r.count }}</td></tr>{% endfor %}
+      </tbody></table></div>
+  </div>
+</div>
+{% endblock %}

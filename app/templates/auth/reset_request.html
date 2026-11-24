@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import field %}
+{% block title %}Quên mật khẩu{% endblock %}
+{% block content %}
+<div class="container" style="max-width:460px">
+  <div class="card card-body shadow-sm mt-3">
+    <h3 class="mb-3">Quên mật khẩu</h3>
+    <form method="post" novalidate>{{ form.hidden_tag() }}
+      {% for f in form if f.widget.input_type not in ('hidden', 'submit') %}{{ field(f) }}{% endfor %}
+      {{ form.submit(class_='btn btn-primary w-100') }}
+    </form>
+  </div>
+</div>
+{% endblock %}

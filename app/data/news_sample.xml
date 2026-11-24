@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Cẩm nang UniJob (dữ liệu mẫu ngoại tuyến)</title>
+    <link>http://localhost:5000/news</link>
+    <description>Bài viết mẫu dùng khi không tải được RSS bên ngoài</description>
+    <item>
+      <title>5 bước viết CV part-time cho sinh viên năm nhất</title>
+      <link>http://localhost:5000/ai/assistant</link>
+      <description>Chưa có kinh nghiệm vẫn có thể làm nổi bật hoạt động CLB, dự án môn học và kỹ năng mềm. UniJob tạo CV tự động từ hồ sơ của bạn.</description>
+      <pubDate>Mon, 16 Nov 2026 08:00:00 +0700</pubDate>
+    </item>
+    <item>
+      <title>Cân bằng lịch học và việc làm thêm: nên làm bao nhiêu giờ mỗi tuần?</title>
+      <link>http://localhost:5000/jobs?job_type=PART_TIME</link>
+      <description>Khoảng 15–20 giờ/tuần là mức nhiều sinh viên duy trì được mà không ảnh hưởng kết quả học tập. Ưu tiên ca tối và cuối tuần.</description>
+      <pubDate>Sat, 14 Nov 2026 09:30:00 +0700</pubDate>
+    </item>
+    <item>
+      <title>Nhận diện tin tuyển dụng lừa đảo: thu phí, giữ giấy tờ, việc nhẹ lương cao</title>
+      <link>http://localhost:5000/companies</link>
+      <description>Không nộp tiền đặt cọc, không giao bản gốc giấy tờ. Ưu tiên nhà tuyển dụng đã xác minh và xem đánh giá của sinh viên trước.</description>
+      <pubDate>Thu, 12 Nov 2026 19:00:00 +0700</pubDate>
+    </item>
+    <item>
+      <title>Mức lương part-time phổ biến theo ngành năm 2026</title>
+      <link>http://localhost:5000/salary</link>
+      <description>Dùng công cụ Tra cứu lương của UniJob (dữ liệu 36.457 tin VietJobs) để biết P25 – trung vị – P75 theo ngành, kinh nghiệm và tỉnh/thành.</description>
+      <pubDate>Tue, 10 Nov 2026 07:15:00 +0700</pubDate>
+    </item>
+  </channel>
+</rss>

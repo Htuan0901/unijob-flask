@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import field %}
+{% block title %}Đăng ký{% endblock %}
+{% block content %}
+<div class="container" style="max-width:620px">
+  <div class="card card-body shadow-sm mt-3">
+    <h3 class="mb-3">Tạo tài khoản UniJob</h3>
+    <form method="post" novalidate>{{ form.hidden_tag() }}
+      {{ field(form.role) }}
+      <div class="row"><div class="col-md-7">{{ field(form.full_name) }}</div><div class="col-md-5">{{ field(form.phone) }}</div></div>
+      {{ field(form.email) }}
+      <div id="company-row">{{ field(form.company_name) }}</div>
+      {{ field(form.city) }}
+      <div class="row"><div class="col-md-6">{{ field(form.password) }}</div><div class="col-md-6">{{ field(form.password2) }}</div></div>
+      {{ field(form.accept_terms) }}
+      <button class="btn btn-primary w-100">Đăng ký</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  const row = document.getElementById('company-row');
+  const sync = () => { row.style.display = document.querySelector('input[name=role]:checked').value === 'EMPLOYER' ? '' : 'none'; };
+  document.querySelectorAll('input[name=role]').forEach(r => r.addEventListener('change', sync)); sync();
+</script>
+{% endblock %}

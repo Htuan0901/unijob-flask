@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import job_card, status_badge %}
+{% block title %}Bảng điều khiển{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <h3 class="mb-0">Xin chào, {{ current_user.full_name }}</h3>
+    <div><a class="btn btn-outline-primary btn-sm" href="{{ url_for('student.profile') }}">Cập nhật hồ sơ</a>
+      <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('student.cv') }}">CV của tôi</a></div>
+  </div>
+  {% if pending %}
+  <div class="alert alert-warning">Bạn có {{ pending|length }} công việc đã hoàn thành chưa đánh giá:
+    {% for job, emp in pending %}<a class="ms-2" href="{{ url_for('student.review', job_id=job.id) }}">{{ job.title }}</a>{% endfor %}</div>
+  {% endif %}
+  <div class="row g-2 mb-3">
+    {% for code, label in [('PENDING','Chờ duyệt'),('ACCEPTED','Được nhận'),('REJECTED','Bị từ chối'),('COMPLETED','Hoàn thành')] %}
+    <div class="col-6 col-md-3"><a class="stat d-block text-decoration-none" href="{{ url_for('student.dashboard', status=code) }}">
+      <div class="num">{{ counts.get(code, 0) }}</div><span class="text-muted">{{ label }}</span></a></div>
+    {% endfor %}
+  </div>
+  <div class="card shadow-sm mb-4"><div class="card-body">
+    <h5>Hồ sơ đã nộp {% if status %}<a class="small" href="{{ url_for('student.dashboard') }}">(xem tất cả)</a>{% endif %}</h5>
+    <div class="table-responsive"><table class="table align-middle">
+      <thead><tr><th>Việc</th><th>Nhà tuyển dụng</th><th>Phù hợp</th><th>Trạng thái</th><th>Ngày nộp</th><th></th></tr></thead>
+      <tbody>
+      {% for a in apps %}
+        <tr><td><a href="{{ url_for('main.job_detail', job_id=a.job_id) }}">{{ a.job.title }}</a>
+              {% if a.employer_note %}<div class="small text-muted">Ghi chú: {{ a.employer_note }}</div>{% endif %}</td>
+            <td class="small">{{ a.job.employer.display_name }}</td><td>{{ a.match_score }}%</td>
+            <td>{{ status_badge(a.status, a.status_label) }}</td><td class="small">{{ a.created_at|dmy }}</td>
+            <td>{% if a.status in ('PENDING', 'ACCEPTED') %}
+              <form method="post" action="{{ url_for('student.withdraw', app_id=a.id) }}" onsubmit="return confirm('Rút hồ sơ này?')">
+                {{ empty_form.hidden_tag() }}<button class="btn btn-sm btn-outline-danger">Rút</button></form>{% endif %}</td></tr>
+      {% else %}<tr><td colspan="6" class="text-muted">Chưa có hồ sơ. <a href="{{ url_for('main.jobs') }}">Tìm việc ngay</a></td></tr>{% endfor %}
+      </tbody></table></div>
+  </div></div>
+  <h5><i class="bi bi-stars text-warning"></i> Gợi ý việc làm theo hồ sơ</h5>
+  {% if recs %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+    {% for r in recs %}<div class="col">{{ job_card(r.job, r.score, r.reasons) }}</div>{% endfor %}
+  </div>
+  {% else %}<p class="text-muted">Hoàn thiện hồ sơ (kỹ năng, ngành quan tâm) để nhận gợi ý.</p>{% endif %}
+</div>
+{% endblock %}

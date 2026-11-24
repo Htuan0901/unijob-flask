@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import status_badge, cv_buttons %}
+{% block title %}Ứng viên – {{ job.title }}{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div><h4 class="mb-0">Ứng viên: <a href="{{ url_for('main.job_detail', job_id=job.id) }}">{{ job.title }}</a></h4>
+      <div class="small text-muted">Cần {{ job.slots }} người · {{ status_badge(job.status, job.status_label) }} · xếp theo điểm phù hợp</div></div>
+    <form class="d-flex gap-1" method="post" action="{{ url_for('employer.job_status', job_id=job.id) }}">
+      {{ status_form.hidden_tag() }}{{ status_form.status(class_='form-select form-select-sm') }}<button class="btn btn-sm btn-primary">Đổi trạng thái</button></form>
+  </div>
+  {% for a in apps %}
+  {% set g = gaps[a.id] %}
+  <div class="card shadow-sm mb-2"><div class="card-body">
+    <div class="d-flex flex-wrap justify-content-between gap-2">
+      <div><a class="fw-semibold" href="{{ url_for('main.student_public', user_id=a.student_id) }}">{{ a.student.full_name }}</a>
+        <span class="text-warning small">{{ a.student.rating_avg|stars }}</span> {{ status_badge(a.status, a.status_label) }}
+        <div class="small text-muted">{{ a.student.student_profile.major if a.student.student_profile }} · {{ a.student.student_profile.university if a.student.student_profile }} · nộp {{ a.created_at|timeago }}</div>
+        {% if a.cover_letter %}<div class="small mt-1">“{{ a.cover_letter }}”</div>{% endif %}
+        <div class="mt-1">{% for s in g.matched %}<span class="skill ok">{{ s }}</span>{% endfor %}{% for s in g.missing %}<span class="skill miss">{{ s }}</span>{% endfor %}</div>
+      </div>
+      <div class="text-end"><div class="fs-4 fw-bold text-success">{{ a.match_score }}%</div><div class="small text-muted mb-1">phù hợp</div>
+        {% set sp = a.student.student_profile %}
+        {% if sp and sp.has_cv %}<div class="d-flex gap-1 justify-content-end">{{ cv_buttons(a.student_id) }}</div>
+        {% else %}<span class="small text-muted">Chưa có CV</span>{% endif %}</div>
+    </div>
+    {% if a.status == 'PENDING' %}
+    <form class="row g-2 mt-2" method="post" action="{{ url_for('employer.decide', app_id=a.id) }}">{{ form.hidden_tag() }}
+      <div class="col-md-8"><input class="form-control form-control-sm" name="note" placeholder="Ghi chú cho ứng viên (không bắt buộc)"></div>
+      <div class="col-md-4 d-flex gap-1"><button name="accept" value="1" class="btn btn-sm btn-success flex-fill">Nhận</button>
+        <button name="reject" value="1" class="btn btn-sm btn-outline-danger flex-fill">Từ chối</button></div>
+    </form>
+    {% elif a.id in reviewable %}
+      <a class="btn btn-sm btn-outline-warning mt-2" href="{{ url_for('employer.review', job_id=job.id, student_id=a.student_id) }}">Đánh giá sinh viên</a>
+    {% endif %}
+  </div></div>
+  {% else %}<p class="text-muted">Chưa có hồ sơ ứng tuyển.</p>{% endfor %}
+</div>
+{% endblock %}

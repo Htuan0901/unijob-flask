@@ -1,0 +1,5 @@
+Chào {{ user.full_name }},
+
+Có việc mới khớp thông báo "{{ alert.name }}":
+{{ job.title }} – {{ job.city }} – {{ job.salary_label }}
+{{ url_for('main.job_detail', job_id=job.id, _external=True) }}

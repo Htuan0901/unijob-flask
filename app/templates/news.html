@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Cẩm nang nghề nghiệp{% endblock %}
+{% block content %}
+<div class="container">
+  <h3>Cẩm nang & tin tức</h3>
+  <p class="text-muted small">Nguồn RSS: {{ feed.source }} {% if not feed.live %}<span class="badge text-bg-secondary">ngoại tuyến</span>{% endif %} – đọc bằng urllib, phân tích XML bằng ElementTree.</p>
+  <div class="row row-cols-1 row-cols-md-2 g-3">
+  {% for it in feed['items'] %}
+    <div class="col"><div class="card h-100 shadow-sm"><div class="card-body">
+      <h6><a href="{{ it.link }}" target="_blank" rel="noopener">{{ it.title }}</a></h6>
+      <p class="small mb-1">{{ it.summary }}</p>
+      {% if it.published %}<small class="text-muted">{{ it.published.strftime('%d/%m/%Y %H:%M') }}</small>{% endif %}
+    </div></div></div>
+  {% endfor %}
+  </div>
+</div>
+{% endblock %}

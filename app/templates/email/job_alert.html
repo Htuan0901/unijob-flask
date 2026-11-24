@@ -1,0 +1,5 @@
+{% extends 'email/_layout.html' %}{% block body %}
+<p>Chào <b>{{ user.full_name }}</b>, có việc mới khớp thông báo <b>{{ alert.name }}</b>:</p>
+<p style="border:1px solid #e5e7eb;border-radius:6px;padding:10px"><b>{{ job.title }}</b><br>{{ job.city }} · {{ job.salary_label }}</p>
+<p><a href="{{ url_for('main.job_detail', job_id=job.id, _external=True) }}">Xem chi tiết và ứng tuyển</a></p>
+{% endblock %}

@@ -1,0 +1,2 @@
+FLASK_APP=unijob.py
+FLASK_DEBUG=1

@@ -1,0 +1,68 @@
+{% macro field(f, class_='') %}
+  {% if f.type == 'BooleanField' %}
+    <div class="form-check mb-3 {{ class_ }}">
+      {{ f(class_='form-check-input' + (' is-invalid' if f.errors else '')) }} {{ f.label(class_='form-check-label') }}
+      {% for e in f.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+  {% elif f.type == 'RadioField' %}
+    <div class="mb-3 {{ class_ }}">
+      <div class="form-label">{{ f.label.text }}</div>
+      {% for sub in f %}
+        <div class="form-check form-check-inline">{{ sub(class_='form-check-input') }} {{ sub.label(class_='form-check-label') }}</div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="mb-3 {{ class_ }}">
+      {{ f.label(class_='form-label') }}
+      {% set cls = 'form-select' if f.type == 'SelectField' else 'form-control' %}
+      {{ f(class_=cls + (' is-invalid' if f.errors else ''), **kwargs) }}
+      {% for e in f.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro pagination_nav(p, endpoint, args={}) %}
+  {% if p.pages > 1 %}
+  <nav><ul class="pagination justify-content-center flex-wrap">
+    <li class="page-item {% if not p.has_prev %}disabled{% endif %}">
+      <a class="page-link" href="{{ url_for(endpoint, page=p.prev_num, **args) if p.has_prev else '#' }}">&laquo;</a></li>
+    {% for n in p.iter_pages() %}
+      {% if n %}
+        <li class="page-item {% if n == p.page %}active{% endif %}"><a class="page-link" href="{{ url_for(endpoint, page=n, **args) }}">{{ n }}</a></li>
+      {% else %}<li class="page-item disabled"><span class="page-link">…</span></li>{% endif %}
+    {% endfor %}
+    <li class="page-item {% if not p.has_next %}disabled{% endif %}">
+      <a class="page-link" href="{{ url_for(endpoint, page=p.next_num, **args) if p.has_next else '#' }}">&raquo;</a></li>
+  </ul></nav>
+  {% endif %}
+{% endmacro %}
+
+{% macro status_badge(s, label) %}
+  {# Màu trạng thái giống bản UniJob gốc – định nghĩa ở .pill trong style.css #}
+  <span class="pill {{ s }}">{{ label }}</span>
+{% endmacro %}
+
+{% macro job_card(job, score=None, reasons=None) %}
+<div class="card job-card h-100 shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start gap-2">
+      <h6 class="card-title mb-1"><a class="stretched-link text-decoration-none" href="{{ url_for('main.job_detail', job_id=job.id) }}">{{ job.title }}</a></h6>
+      {% if score is not none %}<span class="badge bg-success-subtle text-success-emphasis">{{ score }}%</span>{% endif %}
+    </div>
+    <div class="text-muted small mb-2">{{ job.company.name if job.company else job.employer.full_name }}
+      {% if job.company and job.company.verified %}<i class="bi bi-patch-check-fill text-primary" title="Đã xác minh"></i>{% endif %}</div>
+    <div class="small"><i class="bi bi-cash-coin"></i> <strong class="salary">{{ job.salary_label }}</strong></div>
+    <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ job.city }} · {{ job.job_type_label }}</div>
+    {% if reasons %}<div class="small text-primary mt-1">{{ reasons|join(' · ') }}</div>{% endif %}
+  </div>
+  <div class="card-footer bg-transparent small text-muted d-flex justify-content-between">
+    <span>{{ job.created_at|timeago }}</span>
+    {% if job.urgent %}<span class="badge text-bg-danger">Gấp</span>{% endif %}
+  </div>
+</div>
+{% endmacro %}
+
+{% macro cv_buttons(user_id, size='sm') %}
+  <a class="btn btn-{{ size }} btn-outline-primary" target="_blank" href="{{ url_for('main.student_cv', user_id=user_id) }}"><i class="bi bi-file-earmark-pdf"></i> Xem CV</a>
+  <a class="btn btn-{{ size }} btn-outline-secondary" href="{{ url_for('main.student_cv', user_id=user_id, download=1) }}" title="Tải CV về"><i class="bi bi-download"></i></a>
+{% endmacro %}

@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import job_card, field, status_badge %}
+{% block title %}{{ job.title }}{% endblock %}
+{% block head %}
+{% if job.latitude %}<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">{% endif %}
+{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card shadow-sm mb-3"><div class="card-body">
+        <div class="d-flex justify-content-between flex-wrap gap-2">
+          <div>
+            <h3 class="mb-1">{{ job.title }} {% if job.urgent %}<span class="badge text-bg-danger fs-6">Gấp</span>{% endif %}</h3>
+            {% if job.company %}
+              <a href="{{ url_for('main.company_detail', company_id=job.company.id) }}" class="text-decoration-none">{{ job.company.name }}</a>
+              {% if job.company.verified %}<i class="bi bi-patch-check-fill text-primary" title="Đã xác minh"></i>{% endif %}
+              <span class="text-warning small ms-2">{{ job.employer.rating_avg|stars }}</span>
+              <span class="text-muted small">({{ job.employer.rating_count }} đánh giá)</span>
+            {% endif %}
+          </div>
+          <div>{{ status_badge(job.status, job.status_label) }} {% if job.hidden %}<span class="pill HIDDEN">Đã ẩn</span>{% endif %}</div>
+        </div>
+        <hr>
+        <div class="row small g-2">
+          <div class="col-sm-6"><i class="bi bi-cash-coin"></i> Lương: <strong class="salary">{{ job.salary_label }}</strong>
+            {% if job.salary_monthly_max and job.salary_unit != 'MONTH' %}<div class="text-muted">≈ {{ job.salary_monthly_max|money }} đ/tháng (4 giờ/ca, 22 ngày)</div>{% endif %}
+            {% if job.salary_monthly_max and rates.rates.USD %}<div class="text-muted">≈ {{ '%.0f'|format(job.salary_monthly_max * rates.rates.USD) }} USD/tháng
+              <span title="Nguồn: {{ rates.source }}"><i class="bi bi-info-circle"></i></span></div>{% endif %}
+          </div>
+          <div class="col-sm-6"><i class="bi bi-geo-alt"></i> {{ job.address ~ ', ' if job.address }}{{ job.city }}</div>
+          <div class="col-sm-6"><i class="bi bi-briefcase"></i> {{ job.job_type_label }} · {{ job.category.name if job.category }}</div>
+          <div class="col-sm-6"><i class="bi bi-clock"></i> {{ job.working_hours or 'Thỏa thuận' }}</div>
+          <div class="col-sm-6"><i class="bi bi-mortarboard"></i> Kinh nghiệm: {{ job.experience_label }}</div>
+          <div class="col-sm-6"><i class="bi bi-people"></i> Cần {{ job.slots }} người · {{ job.view_count }} lượt xem</div>
+          <div class="col-sm-6"><i class="bi bi-calendar-event"></i> Hạn nộp: {{ job.deadline|dmy or 'Không giới hạn' }}</div>
+          <div class="col-sm-6"><i class="bi bi-calendar-plus"></i> Đăng {{ job.created_at|timeago }}</div>
+        </div>
+        {% if job.skill_list %}<div class="mt-3">{% for s in job.skill_list %}<span class="skill">{{ s }}</span>{% endfor %}</div>{% endif %}
+      </div></div>
+
+      <div class="card shadow-sm mb-3"><div class="card-body">
+        <h5>Mô tả công việc</h5><div class="prewrap">{{ job.description }}</div>
+        {% if job.requirements %}<h5 class="mt-3">Yêu cầu</h5><div class="prewrap">{{ job.requirements }}</div>{% endif %}
+        {% if job.benefits %}<h5 class="mt-3">Quyền lợi</h5><div class="prewrap">{{ job.benefits }}</div>{% endif %}
+      </div></div>
+
+      {% if job.latitude %}
+      <div class="card shadow-sm mb-3"><div class="card-body">
+        <h5>Bản đồ</h5><div id="map"></div>
+        <small class="text-muted">Tọa độ lấy từ API Nominatim (OpenStreetMap).</small>
+      </div></div>
+      {% endif %}
+
+      {% if reviews %}
+      <div class="card shadow-sm mb-3"><div class="card-body">
+        <h5>Sinh viên nói gì về nhà tuyển dụng</h5>
+        {% for r in reviews %}
+          <div class="border-bottom py-2"><span class="text-warning">{{ r.rating|stars }}</span>
+            <strong class="small">{{ r.reviewer.full_name }}</strong> <span class="text-muted small">· {{ r.job.title }}</span>
+            <div class="small">{{ r.comment }}</div></div>
+        {% endfor %}
+      </div></div>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-sm mb-3"><div class="card-body">
+        {% if owner %}
+          <a class="btn btn-outline-primary w-100 mb-2" href="{{ url_for('employer.applicants', job_id=job.id) }}">Xem ứng viên ({{ job.count_applications() }})</a>
+          {% if current_user.id == job.employer_id %}<a class="btn btn-outline-secondary w-100" href="{{ url_for('employer.edit_job', job_id=job.id) }}">Sửa tin</a>{% endif %}
+        {% elif current_user.is_authenticated and current_user.is_student %}
+          {% if my_app and my_app.status != 'WITHDRAWN' %}
+            <div class="alert alert-info mb-2">Bạn đã ứng tuyển · {{ status_badge(my_app.status, my_app.status_label) }}<br>
+              <small>Mức phù hợp: {{ my_app.match_score }}%</small></div>
+          {% elif job.is_open %}
+            <form method="post" action="{{ url_for('main.apply', job_id=job.id) }}">
+              {{ form.hidden_tag() }}{{ field(form.cover_letter) }}
+              {% set sp = current_user.student_profile %}
+              <div class="small mb-2">{% if sp and sp.has_cv %}<i class="bi bi-paperclip"></i> Gửi kèm CV: <strong>{{ sp.cv_original_name }}</strong>
+                {% else %}<i class="bi bi-info-circle"></i> Bạn chưa có CV PDF. <a href="{{ url_for('student.cv') }}">Tải CV lên</a> để nhà tuyển dụng xem.{% endif %}</div>
+              <button class="btn btn-accent w-100"><i class="bi bi-send"></i> Ứng tuyển ngay</button>
+            </form>
+          {% else %}<div class="alert alert-secondary mb-2">Tin không còn nhận hồ sơ.</div>{% endif %}
+          <form method="post" action="{{ url_for('main.toggle_save', job_id=job.id) }}" class="mt-2">
+            {{ empty_form.hidden_tag() }}
+            <button class="btn btn-outline-secondary w-100"><i class="bi bi-bookmark{{ '-fill' if current_user.has_saved(job) }}"></i>
+              {{ 'Bỏ lưu' if current_user.has_saved(job) else 'Lưu tin' }}</button>
+          </form>
+        {% elif not current_user.is_authenticated %}
+          <a class="btn btn-accent w-100" href="{{ url_for('auth.login', next=request.path) }}">Đăng nhập để ứng tuyển</a>
+        {% endif %}
+      </div></div>
+
+      {% if gap %}
+      <div class="card shadow-sm mb-3"><div class="card-body">
+        <h6>Kỹ năng của bạn so với yêu cầu</h6>
+        <div class="progress mb-2" role="progressbar"><div class="progress-bar bg-success" style="width: {{ gap.score }}%">{{ gap.score }}%</div></div>
+        {% for s in gap.matched %}<span class="skill ok"><i class="bi bi-check"></i> {{ s }}</span>{% endfor %}
+        {% for s in gap.missing %}<span class="skill miss"><i class="bi bi-x"></i> {{ s }}</span>{% endfor %}
+        {% if gap.missing %}<div class="small text-muted mt-1">Bổ sung các kỹ năng còn thiếu vào hồ sơ nếu bạn đã có.</div>{% endif %}
+      </div></div>
+      {% endif %}
+
+      {% if similar %}
+      <h6 class="mt-3">Việc làm tương tự</h6>
+      {% for j in similar %}<div class="mb-2">{{ job_card(j) }}</div>{% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{% if job.latitude %}
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([{{ job.latitude }}, {{ job.longitude }}], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OpenStreetMap'}).addTo(map);
+  L.marker([{{ job.latitude }}, {{ job.longitude }}]).addTo(map).bindPopup({{ job.title|tojson }});
+</script>
+{% endif %}
+{% endblock %}

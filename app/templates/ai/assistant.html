@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import field %}
+{% block title %}Trợ lý AI{% endblock %}
+{% block content %}
+<div class="container" style="max-width:860px">
+  <h3><i class="bi bi-stars text-warning"></i> Trợ lý UniJob</h3>
+  <p class="text-muted small">Hỏi về cách dùng UniJob hoặc việc đang tuyển. Câu trả lời dựa trên tài liệu hướng dẫn và tin tuyển dụng (RAG), có trích dẫn [n].
+    Chế độ LLM: <span class="badge text-bg-secondary">{{ provider }}</span></p>
+  {% set past = history[:-1] if result and not result.refused else history %}
+  {% if past %}
+  <div class="mb-3">{% for t in past %}
+    <div class="small"><strong>Bạn:</strong> {{ t.q }}</div><div class="small text-muted mb-2"><strong>Trợ lý:</strong> {{ t.a[:200] }}{% if t.a|length > 200 %}…{% endif %}</div>
+  {% endfor %}<a class="small" href="{{ url_for('ai.assistant', reset=1) }}">Xóa lịch sử</a></div>
+  {% endif %}
+  {% if result %}
+  <div class="card mb-3 shadow-sm"><div class="card-body">
+    <div class="small text-muted mb-1">Bạn hỏi: {{ result.question }}</div>
+    <div class="chat-answer p-3 rounded">{{ result.answer }}</div>
+    {% if result.citations %}<div class="mt-2 small"><strong>Nguồn:</strong>
+      {% for c in result.citations %}<div>[{{ c.n }}] <a href="{{ c.url }}">{{ c.title }}</a> <span class="text-muted">({{ 'tin tuyển dụng' if c.source == 'job' else 'hướng dẫn' }}, điểm {{ c.score }})</span></div>{% endfor %}</div>{% endif %}
+  </div></div>
+  {% endif %}
+  <form method="post" class="card card-body shadow-sm">{{ form.hidden_tag() }}{{ field(form.question) }}
+    <div class="d-flex flex-wrap gap-2">
+      <button class="btn btn-primary">Hỏi</button>
+      {% for q in ['Làm sao để rút hồ sơ đã nộp?', 'Có việc pha chế nào ca tối không?', 'Lương part-time ngành IT bao nhiêu?', 'Quên mật khẩu thì làm gì?'] %}
+        <button class="btn btn-sm btn-outline-secondary" type="button" onclick="document.getElementById('question').value=this.textContent">{{ q }}</button>
+      {% endfor %}
+    </div></form>
+</div>
+{% endblock %}

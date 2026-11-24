@@ -1,0 +1,4 @@
+{% extends 'email/_layout.html' %}{% block body %}
+<p>Chào <b>{{ user.full_name }}</b>,</p><p>Cảm ơn bạn đã đăng ký UniJob. Bấm nút dưới đây để xác nhận email (hiệu lực 7 ngày):</p>
+<p><a href="{{ link }}" style="background:#1d4ed8;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Xác nhận email</a></p>
+{% endblock %}

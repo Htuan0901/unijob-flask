@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import field %}
+{% block title %}Thông báo việc làm{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row g-4">
+    <div class="col-lg-5"><div class="card card-body shadow-sm">
+      <h5>Tạo thông báo việc làm</h5>
+      <p class="small text-muted">Khi có tin mới khớp tiêu chí, UniJob gửi thông báo và email cho bạn.</p>
+      <form method="post" novalidate>{{ form.hidden_tag() }}
+        {{ field(form.name) }}{{ field(form.keyword) }}{{ field(form.category_code) }}
+        <div class="row"><div class="col-6">{{ field(form.city) }}</div><div class="col-6">{{ field(form.job_type) }}</div></div>
+        {{ field(form.min_salary) }}{{ field(form.email_enabled) }}{{ field(form.active) }}
+        <button class="btn btn-primary">Tạo</button></form>
+    </div></div>
+    <div class="col-lg-7"><h5>Thông báo của bạn</h5>
+      {% for a in items %}
+      <div class="card card-body mb-2 shadow-sm"><div class="d-flex justify-content-between flex-wrap gap-2">
+        <div><strong>{{ a.name }}</strong> {% if not a.active %}<span class="badge text-bg-secondary">Tắt</span>{% endif %}
+          <div class="small text-muted">{{ a.keyword or 'Mọi từ khóa' }} · {{ a.category_code or 'Mọi ngành' }} · {{ a.city or 'Toàn quốc' }}
+            {% if a.min_salary %}· ≥ {{ (a.min_salary / 1000000)|int }} tr/tháng{% endif %} {% if a.email_enabled %}· <i class="bi bi-envelope"></i>{% endif %}</div></div>
+        <div class="d-flex gap-1">
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('student.preview_alert', alert_id=a.id) }}">Xem việc khớp</a>
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('student.edit_alert', alert_id=a.id) }}">Sửa</a>
+          <form method="post" action="{{ url_for('student.delete_alert', alert_id=a.id) }}" onsubmit="return confirm('Xóa thông báo này?')">
+            {{ empty_form.hidden_tag() }}<button class="btn btn-sm btn-outline-danger">Xóa</button></form>
+        </div></div></div>
+      {% else %}<p class="text-muted">Chưa có thông báo việc làm.</p>{% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

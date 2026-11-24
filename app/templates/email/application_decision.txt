@@ -1,0 +1,6 @@
+Chào {{ user.full_name }},
+
+Hồ sơ ứng tuyển "{{ job.title }}" của bạn {{ 'ĐƯỢC NHẬN' if accepted else 'chưa phù hợp lần này' }}.
+{% if note %}Ghi chú của nhà tuyển dụng: {{ note }}{% endif %}
+
+Theo dõi tại: {{ url_for('student.dashboard', _external=True) }}

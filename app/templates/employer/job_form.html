@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import field %}
+{% block title %}{{ 'Sửa tin' if job else 'Đăng tin' }}{% endblock %}
+{% block content %}
+<div class="container" style="max-width:900px">
+  <div class="card card-body shadow-sm">
+    <h3>{{ 'Sửa tin tuyển dụng' if job else 'Đăng tin tuyển dụng' }}</h3>
+    <form method="post" novalidate>{{ form.hidden_tag() }}
+      {{ field(form.title) }}
+      <div class="row">
+        <div class="col-md-6">{{ field(form.category) }}
+          <button type="button" class="btn btn-sm btn-outline-primary mb-3" id="btn-classify"><i class="bi bi-stars"></i> Gợi ý ngành (AI)</button>
+          <div id="classify-result" class="small mb-2"></div></div>
+        <div class="col-md-3">{{ field(form.job_type) }}</div>
+        <div class="col-md-3">{{ field(form.experience_level) }}</div>
+      </div>
+      <div class="row"><div class="col-md-4">{{ field(form.city) }}</div><div class="col-md-8">{{ field(form.address) }}</div></div>
+      <div class="row">
+        <div class="col-md-4">{{ field(form.salary_min) }}</div><div class="col-md-4">{{ field(form.salary_max) }}</div>
+        <div class="col-md-4">{{ field(form.salary_unit) }}</div>
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-success mb-2" id="btn-salary"><i class="bi bi-graph-up"></i> Gợi ý lương theo thị trường</button>
+      <div id="salary-result" class="small mb-3"></div>
+      <div class="row"><div class="col-md-6">{{ field(form.working_hours) }}</div><div class="col-md-3">{{ field(form.slots) }}</div><div class="col-md-3">{{ field(form.deadline) }}</div></div>
+      {{ field(form.skills) }}{{ field(form.description) }}{{ field(form.requirements) }}{{ field(form.benefits) }}{{ field(form.urgent) }}
+      <button class="btn btn-primary">Lưu tin</button>
+      <a class="btn btn-link" href="{{ url_for('employer.dashboard') }}">Hủy</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+// Gọi REST API của chính ứng dụng bằng fetch (JSON)
+const fmt = n => n.toLocaleString('vi-VN');
+document.getElementById('btn-classify').onclick = async () => {
+  const title = document.getElementById('title').value.trim();
+  const box = document.getElementById('classify-result');
+  if (!title) { box.textContent = 'Nhập tiêu đề trước.'; return; }
+  const res = await fetch('{{ url_for("api.classify") }}?title=' + encodeURIComponent(title));
+  const data = await res.json();
+  if (!data.predictions || !data.predictions.length) { box.textContent = 'Không đủ từ khóa để dự đoán.'; return; }
+  box.innerHTML = data.predictions.map(p => `<a href="#" data-code="${p.code}" class="me-2">${p.name} (${Math.round(p.probability*100)}%)</a>`).join('');
+  box.querySelectorAll('a').forEach(a => a.onclick = e => { e.preventDefault(); document.getElementById('category').value = a.dataset.code; });
+  document.getElementById('category').value = data.predictions[0].code;
+};
+document.getElementById('btn-salary').onclick = async () => {
+  const code = document.getElementById('category').value;
+  const box = document.getElementById('salary-result');
+  const res = await fetch('{{ url_for("api.salary_suggestion") }}?category=' + code);
+  if (!res.ok) { box.textContent = 'Không có dữ liệu.'; return; }
+  const s = await res.json();
+  box.innerHTML = `<div class="alert alert-success py-2 mb-0">Ngành <b>${s.category_name}</b>: trung vị ${s.median} triệu/tháng (P25 ${s.p25} – P75 ${s.p75}, ${s.sample} tin).
+    Gợi ý <b>${fmt(s.hourly)} đ/giờ</b> hoặc <b>${fmt(s.per_shift)} đ/ca</b>.
+    <a href="#" id="apply-salary">Điền vào form</a><br><small>${s.note}</small></div>`;
+  document.getElementById('apply-salary').onclick = e => { e.preventDefault();
+    document.getElementById('salary_min').value = s.hourly; document.getElementById('salary_max').value = Math.round(s.hourly*1.2/1000)*1000;
+    document.getElementById('salary_unit').value = 'HOUR'; };
+};
+</script>
+{% endblock %}

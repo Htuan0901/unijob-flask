@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import field %}
+{% block title %}Thông tin nhà tuyển dụng{% endblock %}
+{% block content %}
+<div class="container" style="max-width:820px"><div class="card card-body shadow-sm">
+  <h3>Thông tin nhà tuyển dụng</h3>
+  <form method="post" novalidate>{{ form.hidden_tag() }}
+    <div class="row"><div class="col-md-7">{{ field(form.full_name) }}</div><div class="col-md-5">{{ field(form.phone) }}</div></div>
+    {{ field(form.company_name) }}
+    <div class="row"><div class="col-md-6">{{ field(form.industry) }}</div><div class="col-md-6">{{ field(form.city) }}</div></div>
+    {{ field(form.address) }}{{ field(form.website) }}{{ field(form.description) }}
+    <button class="btn btn-primary">Lưu</button></form>
+</div></div>
+{% endblock %}

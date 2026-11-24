@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import field %}
+{% block title %}Hồ sơ của tôi{% endblock %}
+{% block content %}
+<div class="container" style="max-width:820px">
+  <div class="card card-body shadow-sm">
+    <div class="d-flex justify-content-between align-items-center"><h3>Hồ sơ sinh viên</h3>
+      <a class="btn btn-sm btn-outline-primary" href="{{ url_for('student.cv') }}"><i class="bi bi-file-earmark-pdf"></i>
+        {{ 'Quản lý CV (đã có tệp)' if current_user.student_profile and current_user.student_profile.has_cv else 'Tải CV PDF lên' }}</a></div>
+    <form method="post" novalidate>{{ form.hidden_tag() }}
+      <div class="row"><div class="col-md-7">{{ field(form.full_name) }}</div><div class="col-md-5">{{ field(form.phone) }}</div></div>
+      <div class="row"><div class="col-md-6">{{ field(form.university) }}</div><div class="col-md-4">{{ field(form.major) }}</div><div class="col-md-2">{{ field(form.year_of_study) }}</div></div>
+      <div class="row"><div class="col-md-6">{{ field(form.city) }}</div><div class="col-md-6">{{ field(form.preferred_category) }}</div></div>
+      {{ field(form.skills) }}{{ field(form.availability) }}{{ field(form.bio) }}
+      <button class="btn btn-primary">Lưu hồ sơ</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

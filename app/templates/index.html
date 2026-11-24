@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import job_card %}
+{% block title %}Việc làm part-time cho sinh viên{% endblock %}
+{% block content %}
+<section class="hero py-5 mb-4">
+  <div class="container">
+    <h1 class="fw-bold mb-2">Tìm việc làm thêm phù hợp lịch học</h1>
+    <p class="lead mb-4">{{ total }} việc đang tuyển từ {{ companies }} nhà tuyển dụng · gợi ý bằng AI theo hồ sơ của bạn</p>
+    <form class="row g-2 bg-white p-2 rounded-3 shadow" action="{{ url_for('main.jobs') }}" method="get">
+      <div class="col-md-5">{{ form.q(class_='form-control form-control-lg', placeholder='Vị trí, kỹ năng: barista, gia sư, Python...') }}</div>
+      <div class="col-md-3">{{ form.category(class_='form-select form-select-lg') }}</div>
+      <div class="col-md-2">{{ form.city(class_='form-select form-select-lg') }}</div>
+      <div class="col-md-2 d-grid"><button class="btn btn-accent btn-lg"><i class="bi bi-search"></i> Tìm việc</button></div>
+    </form>
+  </div>
+</section>
+
+<div class="container">
+  {% if recs %}
+  <h4 class="mb-3"><i class="bi bi-stars text-warning"></i> Gợi ý cho bạn</h4>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3 mb-4">
+    {% for r in recs %}<div class="col">{{ job_card(r.job, r.score, r.reasons[:1]) }}</div>{% endfor %}
+  </div>
+  {% endif %}
+
+  {% if urgent %}
+  <h4 class="mb-3"><i class="bi bi-lightning-charge-fill text-danger"></i> Tuyển gấp</h4>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3 mb-4">
+    {% for j in urgent %}<div class="col">{{ job_card(j) }}</div>{% endfor %}
+  </div>
+  {% endif %}
+
+  <h4 class="mb-3">Danh mục nghề</h4>
+  <div class="row row-cols-2 row-cols-md-4 g-2 mb-4">
+    {% for code, name in CATEGORIES %}
+    <div class="col"><a class="cat-tile" href="{{ url_for('main.jobs', category=code) }}">
+      <div class="fw-semibold small">{{ name }}</div><div class="text-muted small">{{ counts.get(code, 0) }} việc</div></a></div>
+    {% endfor %}
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Việc mới đăng</h4><a href="{{ url_for('main.jobs') }}">Xem tất cả →</a>
+  </div>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
+    {% for j in latest %}<div class="col">{{ job_card(j) }}</div>{% endfor %}
+  </div>
+
+  {% if market %}
+  <div class="row g-3">
+    <div class="col-md-4"><div class="stat"><div class="num">{{ '{:,}'.format(market.totalJobs).replace(',', '.') }}</div>tin VietJobs đã phân tích</div></div>
+    <div class="col-md-4"><div class="stat"><div class="num">{{ market.partTimeOverall.median }} tr</div>trung vị lương part-time / tháng</div></div>
+    <div class="col-md-4"><div class="stat"><div class="num">{{ (market.negotiableRatio * 100)|round|int }}%</div>tin để lương "thỏa thuận"</div></div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

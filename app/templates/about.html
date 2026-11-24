@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Giới thiệu{% endblock %}
+{% block content %}
+<div class="container" style="max-width:860px">
+  <h3>Về UniJob</h3>
+  <p>UniJob là nền tảng hai chiều kết nối <strong>sinh viên</strong> tìm việc làm thêm với <strong>nhà tuyển dụng</strong>.
+  Luồng nghiệp vụ: đăng tin → ứng tuyển → duyệt → hoàn thành → đánh giá hai chiều.</p>
+  <h5>Công nghệ</h5>
+  <ul>
+    <li>Flask (application factory, blueprint), Jinja2 + Bootstrap 5, Flask-WTF (CSRF, validator)</li>
+    <li>Flask-SQLAlchemy + Flask-Migrate (SQLite/MySQL/PostgreSQL), Flask-Login, Flask-Mail (gửi trong luồng nền)</li>
+    <li>Lập trình mạng: REST API JSON + token, urllib gọi API tỷ giá, bản đồ OpenStreetMap, RSS (XML), LLM</li>
+    <li>Dữ liệu: gợi ý việc làm TF-IDF, phân loại ngành Naive Bayes, thống kê lương VietJobs, biểu đồ Matplotlib</li>
+  </ul>
+  <h5>Tài khoản demo</h5>
+  <table class="table table-sm bg-white w-auto"><tr><th>Vai trò</th><th>Email</th><th>Mật khẩu</th></tr>
+    <tr><td>Sinh viên</td><td>sv@unijob.vn</td><td>Sinhvien@123</td></tr>
+    <tr><td>Nhà tuyển dụng</td><td>ntd@unijob.vn</td><td>Tuyendung@123</td></tr>
+    <tr><td>Quản trị viên</td><td>admin@unijob.vn</td><td>Admin@123</td></tr></table>
+</div>
+{% endblock %}

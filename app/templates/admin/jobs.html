@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import pagination_nav, status_badge %}
+{% block title %}Quản lý tin{% endblock %}
+{% block content %}
+<div class="container">
+  <h3>Tin tuyển dụng ({{ pagination.total }})</h3>
+  <form class="row g-2 mb-3" method="get">
+    <div class="col-md-6"><input class="form-control" name="q" value="{{ q }}" placeholder="Tiêu đề"></div>
+    <div class="col-md-3"><select class="form-select" name="status"><option value="">Mọi trạng thái</option>
+      {% for s, l in [('OPEN','Đang tuyển'),('FILLED','Đã đủ người'),('COMPLETED','Hoàn thành'),('CLOSED','Đã đóng'),('HIDDEN','Bị ẩn')] %}<option value="{{ s }}" {{ 'selected' if status == s }}>{{ l }}</option>{% endfor %}</select></div>
+    <div class="col-md-3"><button class="btn btn-primary w-100">Lọc</button></div>
+  </form>
+  <div class="card shadow-sm"><div class="table-responsive"><table class="table align-middle mb-0">
+    <thead><tr><th>Tiêu đề</th><th>Nhà tuyển dụng</th><th>Trạng thái</th><th>Hồ sơ</th><th>Ngày đăng</th><th></th></tr></thead><tbody>
+    {% for j in jobs %}
+      <tr><td><a href="{{ url_for('main.job_detail', job_id=j.id) }}">{{ j.title }}</a></td><td class="small">{{ j.employer.display_name }}</td>
+        <td>{{ status_badge(j.status, j.status_label) }}{% if j.hidden %} <span class="pill HIDDEN">Ẩn</span>{% endif %}</td>
+        <td>{{ j.count_applications() }}</td><td class="small">{{ j.created_at|dmy }}</td>
+        <td><form method="post" action="{{ url_for('admin.toggle_hidden', job_id=j.id) }}">{{ empty_form.hidden_tag() }}
+          <button class="btn btn-sm btn-outline-{{ 'success' if j.hidden else 'danger' }}">{{ 'Hiện' if j.hidden else 'Ẩn' }}</button></form></td></tr>
+    {% endfor %}</tbody></table></div></div>
+  <div class="mt-3">{{ pagination_nav(pagination, 'admin.jobs', {'q': q, 'status': status}) }}</div>
+</div>
+{% endblock %}

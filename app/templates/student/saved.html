@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import job_card %}
+{% block title %}Việc đã lưu{% endblock %}
+{% block content %}
+<div class="container"><h3>Việc đã lưu</h3>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+    {% for j in jobs %}<div class="col">{{ job_card(j) }}</div>{% else %}<p class="text-muted">Bạn chưa lưu việc nào.</p>{% endfor %}
+  </div></div>
+{% endblock %}

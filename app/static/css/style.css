@@ -1,0 +1,130 @@
+/* Bảng màu giữ nguyên từ bản UniJob gốc (frontend/src/styles.css của bản React):
+   mực xanh đậm (ink), vàng "ca làm" (shift), đỏ tín hiệu (signal), xanh lương (ok). */
+:root {
+  --ink: #1b2a4a; --ink-2: #3a4866; --muted: #5b6780;
+  --paper: #f5f7fb; --surface: #fff; --line: #dfe4ee; --line-2: #c9d1e0;
+  --shift: #ffc83d; --shift-soft: #fff4d1;
+  --signal: #d93a2f; --signal-soft: #fdecea;
+  --ok: #0e8a6a; --ok-soft: #e3f5ef;
+  --info: #2f5fd0; --info-soft: #e8eefc;
+  --warn: #b26a00; --warn-soft: #fff1dc;
+  --r-sm: 6px; --r-md: 10px;
+  --font: "Be Vietnam Pro", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Ghi đè biến của Bootstrap 5 để mọi thành phần dùng chung bảng màu */
+  --bs-body-font-family: var(--font);
+  --bs-body-color: var(--ink); --bs-body-bg: var(--paper);
+  --bs-primary: #1b2a4a; --bs-primary-rgb: 27, 42, 74;
+  --bs-success: #0e8a6a; --bs-success-rgb: 14, 138, 106;
+  --bs-danger: #d93a2f; --bs-danger-rgb: 217, 58, 47;
+  --bs-warning: #ffc83d; --bs-warning-rgb: 255, 200, 61;
+  --bs-info: #2f5fd0; --bs-info-rgb: 47, 95, 208;
+  --bs-secondary-color: #5b6780;
+  --bs-link-color: #2f5fd0; --bs-link-color-rgb: 47, 95, 208;
+  --bs-link-hover-color: #1b2a4a; --bs-link-hover-color-rgb: 27, 42, 74;
+  --bs-border-color: #dfe4ee; --bs-border-radius: 6px; --bs-border-radius-lg: 10px;
+  --bs-primary-bg-subtle: #e8eefc; --bs-primary-text-emphasis: #2f5fd0;
+  --bs-success-bg-subtle: #e3f5ef; --bs-success-text-emphasis: #0e8a6a;
+  --bs-danger-bg-subtle: #fdecea; --bs-danger-text-emphasis: #d93a2f;
+  --bs-warning-bg-subtle: #fff4d1; --bs-warning-text-emphasis: #6b4e00;
+}
+body { background: var(--paper); color: var(--ink); font-family: var(--font); }
+h1, h2, h3, h4, h5, h6 { color: inherit; letter-spacing: -0.015em; }
+h1 { font-weight: 800; }
+.text-muted { color: var(--muted) !important; }
+.text-success { color: var(--ok) !important; }
+.text-danger { color: var(--signal) !important; }
+.text-primary { color: var(--info) !important; }
+.text-warning { color: #e0a800 !important; }
+
+/* ---- Thanh điều hướng (topbar) ---- */
+.bg-brand { background: var(--ink) !important; }
+.bg-brand .nav-link { color: #c8d1e4; border-radius: var(--r-sm); }
+.bg-brand .nav-link:hover, .bg-brand .nav-link.active, .bg-brand .show > .nav-link { color: #fff; background: rgba(255,255,255,.12); }
+.navbar-brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.02em; }
+.brand-mark { width: 30px; height: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 4px;
+              background: rgba(255,255,255,.08); border-radius: 7px; }
+.brand-mark i { border-radius: 2px; background: rgba(255,255,255,.3); }
+.brand-mark i:nth-child(1) { background: var(--shift); }
+.brand-mark i:nth-child(4) { background: var(--signal); }
+
+/* ---- Nút ---- */
+.btn { border-radius: var(--r-sm); font-weight: 600; }
+.btn-primary { --bs-btn-bg: var(--ink); --bs-btn-border-color: var(--ink); --bs-btn-hover-bg: #24375f;
+  --bs-btn-hover-border-color: #24375f; --bs-btn-active-bg: #24375f; --bs-btn-active-border-color: #24375f;
+  --bs-btn-disabled-bg: var(--ink); --bs-btn-disabled-border-color: var(--ink); }
+.btn-outline-primary { --bs-btn-color: var(--ink); --bs-btn-border-color: var(--line-2); --bs-btn-hover-bg: var(--ink);
+  --bs-btn-hover-border-color: var(--ink); --bs-btn-active-bg: var(--ink); --bs-btn-active-border-color: var(--ink); }
+.btn-accent, .btn-danger { --bs-btn-color: #fff; --bs-btn-bg: var(--signal); --bs-btn-border-color: var(--signal);
+  --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #c03026; --bs-btn-hover-border-color: #c03026;
+  --bs-btn-active-color: #fff; --bs-btn-active-bg: #c03026; --bs-btn-active-border-color: #c03026; }
+.btn-success { --bs-btn-bg: var(--ok); --bs-btn-border-color: var(--ok); --bs-btn-hover-bg: #0b7458; --bs-btn-hover-border-color: #0b7458; }
+.btn-warning { --bs-btn-bg: var(--shift); --bs-btn-border-color: var(--shift); --bs-btn-color: var(--ink);
+  --bs-btn-hover-bg: #f5b81f; --bs-btn-hover-border-color: #f5b81f; --bs-btn-hover-color: var(--ink); }
+.btn-outline-light { --bs-btn-color: #fff; --bs-btn-border-color: rgba(255,255,255,.35); }
+.pagination { --bs-pagination-color: var(--ink); --bs-pagination-active-bg: var(--ink); --bs-pagination-active-border-color: var(--ink); }
+.form-control:focus, .form-select:focus { border-color: var(--info); box-shadow: 0 0 0 .2rem rgba(47,95,208,.15); }
+.nav-tabs .nav-link.active, .nav-pills .nav-link.active { --bs-nav-pills-link-active-bg: var(--ink); }
+.nav-link { color: var(--ink-2); }
+
+/* ---- Hero trang chủ ---- */
+.hero { background: var(--ink); color: #fff; }
+.hero h1 { letter-spacing: -0.03em; }
+.hero .lead { color: #c8d1e4; }
+.hero form { border-radius: var(--r-md) !important; }
+.hero .form-control, .hero .form-select { border: 0; }
+.hero-stats { color: #c8d1e4; font-size: .9rem; }
+.hero-stats b { display: block; color: #fff; font-size: 1.5rem; }
+
+/* ---- Thẻ, ô, khung ---- */
+.card { border-color: var(--line); border-radius: var(--r-md); }
+.shadow-sm { box-shadow: 0 1px 2px rgba(27,42,74,.06) !important; }
+.job-card { transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; border: 1px solid var(--line); }
+.job-card:hover { transform: translateY(-2px); border-color: var(--line-2); box-shadow: 0 .5rem 1rem rgba(27,42,74,.08) !important; }
+.job-card .card-title a { color: var(--ink); }
+.job-card .card-title a:hover { color: var(--info); }
+.cat-tile { border: 1px solid var(--line); border-radius: var(--r-md); background: #fff; padding: .8rem 1rem; display: block;
+            text-decoration: none; color: inherit; height: 100%; border-left: 3px solid var(--shift); }
+.cat-tile:hover { border-color: var(--ink); border-left-color: var(--signal); color: var(--ink); }
+.stat { background: #fff; border: 1px solid var(--line); border-radius: var(--r-md); padding: 1rem; }
+.stat .num { font-size: 1.6rem; font-weight: 700; color: var(--ink); }
+.table { --bs-table-color: var(--ink); }
+.table > thead { --bs-table-bg: var(--paper); color: var(--ink-2); }
+.dropdown-item:active { background: var(--ink); }
+
+/* ---- Trạng thái (pill) – giống bản gốc ---- */
+.pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 20px; font-size: 12px;
+        font-weight: 600; white-space: nowrap; background: var(--paper); color: var(--ink-2); border: 1px solid var(--line); }
+.pill.OPEN, .pill.PENDING { background: var(--info-soft); color: var(--info); border-color: transparent; }
+.pill.FILLED, .pill.ACCEPTED { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+.pill.COMPLETED { background: var(--ink); color: #fff; border-color: transparent; }
+.pill.CLOSED, .pill.WITHDRAWN { background: #eef0f4; color: var(--muted); border-color: transparent; }
+.pill.REJECTED, .pill.HIDDEN { background: var(--signal-soft); color: var(--signal); border-color: transparent; }
+.badge.text-bg-danger { background: var(--signal) !important; }
+.badge.text-bg-warning { background: var(--shift) !important; color: var(--ink) !important; }
+.badge.text-bg-success { background: var(--ok) !important; }
+.badge.text-bg-primary { background: var(--ink) !important; }
+
+/* ---- Lương, ca làm, kỹ năng ---- */
+.salary { font-weight: 700; color: var(--ok); font-variant-numeric: tabular-nums; }
+.shift { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px; background: var(--shift-soft);
+         border-left: 3px solid var(--shift); border-radius: 0 4px 4px 0; font-size: 12px; font-weight: 600; color: #6b4e00; }
+.skill { display: inline-block; padding: .15rem .55rem; border-radius: 20px; font-size: .8rem; margin: 0 .25rem .25rem 0;
+         background: var(--paper); color: var(--ink-2); border: 1px solid var(--line); }
+.skill.ok { background: var(--ok-soft); color: var(--ok); border-color: #bfe6d8; }
+.skill.miss { background: var(--warn-soft); color: var(--warn); border-color: #f4d9b0; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--shift); color: var(--ink); font-weight: 800;
+          display: inline-flex; align-items: center; justify-content: center; }
+
+.prewrap { white-space: pre-line; }
+.chat-answer { white-space: pre-line; background: #fff; border-left: 4px solid var(--shift); }
+#map { height: 260px; border-radius: var(--r-md); }
+
+/* ---- Chân trang sáng như bản gốc ---- */
+.site-footer { background: #fff; border-top: 1px solid var(--line); color: var(--muted); }
+.site-footer a { color: var(--ink-2); text-decoration: none; }
+.site-footer a:hover { color: var(--signal); }
+
+@media print { nav, footer, .no-print { display: none !important; } body { background: #fff; } }
+main { padding-top: 1rem; }
+main > .hero:first-child { margin-top: -1rem; }   /* hero sát thanh điều hướng như bản gốc */

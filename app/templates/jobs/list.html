@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import job_card, pagination_nav, field %}
+{% block title %}Việc làm{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row g-4">
+    <aside class="col-lg-3">
+      <form method="get" class="card card-body shadow-sm">
+        <h6 class="fw-bold"><i class="bi bi-funnel"></i> Bộ lọc</h6>
+        {{ field(form.q, placeholder='Từ khóa') }}
+        {{ field(form.category) }}
+        {{ field(form.city) }}
+        {{ field(form.job_type) }}
+        {{ field(form.experience) }}
+        {{ field(form.min_salary) }}
+        {{ field(form.posted) }}
+        {{ field(form.urgent) }}
+        {{ field(form.sort) }}
+        <button class="btn btn-primary w-100">Áp dụng</button>
+        <a class="btn btn-link btn-sm" href="{{ url_for('main.jobs') }}">Xóa bộ lọc</a>
+      </form>
+    </aside>
+    <section class="col-lg-9">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">{{ pagination.total }} việc phù hợp</h5>
+        {% if form.sort.data == 'match' and not (current_user.is_authenticated and current_user.is_student) %}
+          <small class="text-muted">Đăng nhập tài khoản sinh viên để xếp theo độ phù hợp.</small>
+        {% endif %}
+      </div>
+      {% if jobs %}
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 mb-4">
+        {% for j in jobs %}<div class="col">{{ job_card(j, scores.get(j.id)) }}</div>{% endfor %}
+      </div>
+      {% else %}
+        <div class="alert alert-light border">Không có việc nào khớp bộ lọc. Hãy thử nới rộng tiêu chí.</div>
+      {% endif %}
+      {{ pagination_nav(pagination, 'main.jobs', args) }}
+    </section>
+  </div>
+</div>
+{% endblock %}

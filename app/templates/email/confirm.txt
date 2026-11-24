@@ -1,0 +1,6 @@
+Chào {{ user.full_name }},
+
+Cảm ơn bạn đã đăng ký UniJob. Bấm liên kết sau để xác nhận email (hiệu lực 7 ngày):
+{{ link }}
+
+UniJob

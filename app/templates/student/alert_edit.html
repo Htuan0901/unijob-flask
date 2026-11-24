@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import field %}
+{% block title %}Sửa thông báo việc làm{% endblock %}
+{% block content %}
+<div class="container" style="max-width:560px"><div class="card card-body shadow-sm">
+  <h5>Sửa "{{ alert.name }}"</h5>
+  <form method="post" novalidate>{{ form.hidden_tag() }}
+    {{ field(form.name) }}{{ field(form.keyword) }}{{ field(form.category_code) }}{{ field(form.city) }}{{ field(form.job_type) }}
+    {{ field(form.min_salary) }}{{ field(form.email_enabled) }}{{ field(form.active) }}
+    <button class="btn btn-primary">Lưu</button> <a class="btn btn-link" href="{{ url_for('student.alerts') }}">Hủy</a></form>
+</div></div>
+{% endblock %}

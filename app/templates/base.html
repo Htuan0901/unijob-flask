@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}UniJob{% endblock %} · UniJob</title>
+  {{ bootstrap.load_css() }}
+  {{ bootstrap.load_icon_font_css() }}
+  {# Font gốc của UniJob; khi không có mạng trình duyệt tự dùng font hệ thống #}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  {% block head %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+<nav class="navbar navbar-expand-lg navbar-dark bg-brand sticky-top shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="{{ url_for('main.index') }}"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span> UniJob</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.jobs') }}">Việc làm</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.companies') }}">Công ty</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.salary') }}">Tra cứu lương</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.news_page') }}">Cẩm nang</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('ai.assistant') }}"><i class="bi bi-stars"></i> Trợ lý AI</a></li>
+      </ul>
+      <ul class="navbar-nav">
+      {% if current_user.is_authenticated %}
+        {% if current_user.is_employer %}
+          <li class="nav-item"><a class="btn btn-warning btn-sm mt-1 me-2" href="{{ url_for('employer.new_job') }}"><i class="bi bi-plus-lg"></i> Đăng tin</a></li>
+        {% endif %}
+        <li class="nav-item">
+          <a class="nav-link position-relative" href="{{ url_for('main.notifications') }}" title="Thông báo"><i class="bi bi-bell"></i>
+            {% if unread_count %}<span class="badge rounded-pill bg-danger">{{ unread_count }}</span>{% endif %}</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi bi-person-circle"></i> {{ current_user.full_name }}</a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            {% if current_user.is_student %}
+              <li><a class="dropdown-item" href="{{ url_for('student.dashboard') }}">Bảng điều khiển</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('student.profile') }}">Hồ sơ của tôi</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('student.saved') }}">Việc đã lưu</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('student.alerts') }}">Thông báo việc làm</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('student.cv') }}">CV của tôi</a></li>
+            {% elif current_user.is_employer %}
+              <li><a class="dropdown-item" href="{{ url_for('employer.dashboard') }}">Tin tuyển dụng của tôi</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('employer.candidates') }}">Tìm ứng viên</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('employer.company') }}">Thông tin công ty</a></li>
+            {% elif current_user.is_admin %}
+              <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">Thống kê</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('admin.users') }}">Người dùng</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('admin.jobs') }}">Tin tuyển dụng</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('admin.outbox') }}">Hộp thư đi (email)</a></li>
+            {% endif %}
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}">Đổi mật khẩu</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Đăng xuất</a></li>
+          </ul>
+        </li>
+      {% else %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Đăng nhập</a></li>
+        <li class="nav-item"><a class="btn btn-accent btn-sm mt-1" href="{{ url_for('auth.register') }}">Đăng ký</a></li>
+      {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+{% if current_user.is_authenticated and not current_user.confirmed %}
+<div class="alert alert-warning rounded-0 mb-0 py-2 small text-center">
+  Tài khoản chưa xác nhận email. <a href="{{ url_for('auth.resend_confirmation') }}">Gửi lại email xác nhận</a>
+</div>
+{% endif %}
+
+<main class="flex-grow-1">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}<div class="container mt-3">
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ 'info' if cat == 'message' else cat }} alert-dismissible fade show" role="alert">
+          {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+  </div>{% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer py-4 mt-5 small">
+  <div class="container d-flex flex-wrap justify-content-between gap-2">
+    <span>© {{ now().year }} UniJob – Đồ án Lập trình Python nâng cao (Flask)</span>
+    <span>
+      <a class="me-3" href="{{ url_for('main.about') }}">Giới thiệu</a>
+      <a class="me-3" href="{{ url_for('main.currency') }}">Quy đổi tiền tệ</a>
+      <a  href="{{ url_for('api.list_jobs') }}">REST API</a>
+    </span>
+  </div>
+</footer>
+{{ bootstrap.load_js() }}
+{% block scripts %}{% endblock %}
+</body>
+</html>
