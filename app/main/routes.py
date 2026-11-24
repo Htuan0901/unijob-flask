@@ -1,10 +1,9 @@
 """Khu vực công khai: trang chủ, tìm kiếm + lọc + phân trang, chi tiết tin, công ty, tra cứu lương, tin tức."""
 from datetime import timedelta
-import os
+import io
 
 import sqlalchemy as sa
-from flask import (abort, current_app, flash, redirect, render_template, request, send_from_directory,
-                   url_for)
+from flask import (abort, current_app, flash, redirect, render_template, request, send_file, url_for)
 from flask_login import current_user, login_required
 
 from . import main
@@ -244,12 +243,12 @@ def student_cv(user_id):
     if not (current_user.is_employer or current_user.is_admin or current_user.id == user.id):
         abort(403)
     p = user.student_profile
-    path = cv_files.cv_path(p) if p else None
-    if not path or not os.path.exists(path):
+    data = cv_files.read_cv(p)
+    if data is None:
         abort(404)
-    return send_from_directory(os.path.dirname(path), os.path.basename(path), mimetype='application/pdf',
-                               as_attachment=request.args.get('download') == '1',
-                               download_name=p.cv_original_name or 'cv.pdf', max_age=0)
+    return send_file(io.BytesIO(data), mimetype='application/pdf',
+                     as_attachment=request.args.get('download') == '1',
+                     download_name=p.cv_original_name or 'cv.pdf', max_age=0)
 
 
 # ---------------------------------------------------------------- công cụ dữ liệu

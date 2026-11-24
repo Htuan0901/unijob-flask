@@ -84,3 +84,24 @@ def test_replace_and_delete_cv(client, people):
     db.session.refresh(p)
     assert not p.has_cv and not os.path.exists(second)
     assert client.get(f'/students/{people["stu"].id}/cv').status_code == 404
+
+
+def test_cv_stored_in_database_when_cv_storage_db(app, client, people):
+    """Deploy lên host không có ổ đĩa bền: CV_STORAGE=db lưu PDF trong CSDL, không ghi ra đĩa."""
+    app.config['CV_STORAGE'] = 'db'
+    login(client, 'sv@test.vn')
+    assert 'Đã tải CV lên' in upload(client).get_data(as_text=True)
+    p = people['stu'].student_profile
+    db.session.refresh(p)
+    assert p.cv_data == PDF and not os.path.exists(cv_path(p))
+    resp = client.get(f'/students/{people["stu"].id}/cv?download=1')
+    assert resp.status_code == 200 and resp.data == PDF and 'attachment' in resp.headers['Content-Disposition']
+    resp.close()
+
+
+def test_postgres_url_normalized():
+    from config import _db_url
+    assert _db_url('postgres://u:p@h/db') == 'postgresql+psycopg://u:p@h/db'
+    assert _db_url('postgresql://u:p@h/db?sslmode=require') == 'postgresql+psycopg://u:p@h/db?sslmode=require'
+    assert _db_url('mysql+pymysql://u:p@h/db') == 'mysql+pymysql://u:p@h/db'
+    assert _db_url(None) is None

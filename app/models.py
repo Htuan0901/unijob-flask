@@ -208,6 +208,9 @@ class StudentProfile(db.Model):
     cv_filename: so.Mapped[Optional[str]] = so.mapped_column(sa.String(120))
     cv_original_name: so.Mapped[Optional[str]] = so.mapped_column(sa.String(200))
     cv_uploaded_at: so.Mapped[Optional[datetime]]
+    # Khi CV_STORAGE=db (host không có ổ đĩa bền, vd Render free): nội dung PDF lưu luôn trong CSDL.
+    # deferred -> chỉ tải khi thật sự mở CV, không làm chậm các truy vấn hồ sơ khác.
+    cv_data: so.Mapped[Optional[bytes]] = so.mapped_column(sa.LargeBinary, deferred=True)
 
     user: so.Mapped[User] = so.relationship(back_populates='student_profile')
 
