@@ -29,7 +29,6 @@
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.companies') }}">Công ty</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.salary') }}">Tra cứu lương</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.news_page') }}">Cẩm nang</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('ai.assistant') }}"><i class="bi bi-stars"></i> Trợ lý AI</a></li>
       </ul>
       <ul class="navbar-nav">
       {% if current_user.is_authenticated %}
@@ -99,10 +98,12 @@
     <span>
       <a class="me-3" href="{{ url_for('main.about') }}">Giới thiệu</a>
       <a class="me-3" href="{{ url_for('main.currency') }}">Quy đổi tiền tệ</a>
+      <a class="me-3" href="{{ url_for('ai.assistant') }}">Trợ lý AI</a>
       <a  href="{{ url_for('api.list_jobs') }}">REST API</a>
     </span>
   </div>
 </footer>
+{% if request.endpoint != 'ai.assistant' %}{% include 'ai/_widget.html' %}{% endif %}
 {{ bootstrap.load_js() }}
 {% block scripts %}{% endblock %}
 </body>

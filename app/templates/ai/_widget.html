@@ -1,0 +1,32 @@
+{# Khung chat Trợ lý AI nổi ở góc phải dưới mọi trang; gọi /ai/ask và /ai/history bằng fetch #}
+<div class="cw" id="cw" data-ask="{{ url_for('ai.ask_json') }}" data-history="{{ url_for('ai.history_json') }}"
+     data-reset="{{ url_for('ai.reset_json') }}">
+  <section class="cw-panel chat-card" id="cw-panel" role="dialog" aria-label="Trợ lý UniJob" hidden>
+    <div class="chat-head">
+      <span class="chat-avatar bot sm" aria-hidden="true"><i class="bi bi-stars"></i></span>
+      <div class="flex-grow-1 lh-sm"><div class="fw-bold">Trợ lý UniJob</div>
+        <div class="small chat-sub" id="cw-mode">Hỏi về việc làm hoặc cách dùng UniJob</div></div>
+      <button class="cw-icon" type="button" id="cw-reset" title="Xóa lịch sử"><i class="bi bi-arrow-counterclockwise"></i></button>
+      <a class="cw-icon" href="{{ url_for('ai.assistant') }}" title="Mở toàn trang"><i class="bi bi-arrows-angle-expand"></i></a>
+      <button class="cw-icon" type="button" id="cw-close" title="Đóng"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="chat-body cw-body" id="cw-body">
+      <div class="chat-row bot"><span class="chat-avatar bot sm"><i class="bi bi-stars"></i></span>
+        <div class="bubble bot"><p>Xin chào! Mình có thể giúp bạn tìm việc phù hợp hoặc hướng dẫn dùng UniJob.</p></div></div>
+    </div>
+    <form class="chat-input" id="cw-form">
+      <div class="chat-suggest" id="cw-suggest">
+        {% for q in ['Có việc thực tập CNTT nào ở TP.HCM?', 'Có việc pha chế ca tối không?', 'Làm sao để rút hồ sơ?'] %}
+        <button class="chip" type="button" data-q="{{ q }}">{{ q }}</button>{% endfor %}
+      </div>
+      <div class="chat-compose">
+        <textarea class="form-control" id="cw-q" rows="1" maxlength="500" placeholder="Nhập câu hỏi…"></textarea>
+        <button class="btn btn-send" type="submit" aria-label="Gửi"><i class="bi bi-send-fill"></i></button>
+      </div>
+    </form>
+  </section>
+  <button class="cw-fab" type="button" id="cw-fab" aria-label="Mở Trợ lý AI" aria-expanded="false">
+    <i class="bi bi-chat-dots-fill cw-open"></i><i class="bi bi-x-lg cw-x"></i>
+  </button>
+</div>
+<script src="{{ url_for('static', filename='js/chat-widget.js') }}" defer></script>

@@ -63,3 +63,16 @@ def test_expand_query_abbreviations_and_district():
     assert 'thực tập sinh' in q and 'công nghệ thông tin' in q and 'TP. Hồ Chí Minh' in q
     assert 'phân tích nghiệp vụ' in expand_query('việc BA')
     assert expand_query('ba mẹ tôi') == 'ba mẹ tôi'      # "ba" thường không phải BA
+
+
+def test_floating_widget_and_json_html(client, people):
+    rag.get_index(rebuild=True)
+    home = client.get('/').get_data(as_text=True)
+    assert 'id="cw"' in home and 'chat-widget.js' in home
+    assert 'id="cw"' not in client.get('/ai/assistant').get_data(as_text=True)
+    r = client.post('/ai/ask', json={'question': 'Quên mật khẩu thì làm sao?'}).json
+    assert '<p>' in r['html'] or '<ul' in r['html']
+    h = client.get('/ai/history').json
+    assert h['history'][-1]['q'] == 'Quên mật khẩu thì làm sao?'
+    client.post('/ai/reset')
+    assert client.get('/ai/history').json['history'] == []

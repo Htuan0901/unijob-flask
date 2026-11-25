@@ -98,8 +98,23 @@ def assistant():
 
 @ai.route('/ask', methods=['POST'])
 def ask_json():
-    """Phiên bản JSON cho fetch() trên trang (có CSRF qua header X-CSRFToken)."""
+    """Phiên bản JSON cho khung chat nổi (fetch, CSRF qua header X-CSRFToken); kèm 'html' đã định dạng sẵn."""
     data = request.get_json(silent=True) or {}
     if not data.get('question'):
         return jsonify(error='Thiếu câu hỏi'), 400
-    return jsonify(ask(data['question']))
+    result = ask(data['question'])
+    result['html'] = str(chat_format(result['answer'], result['citations']))
+    return jsonify(result)
+
+
+@ai.route('/history')
+def history_json():
+    """Lịch sử hội thoại trong phiên để khung chat nổi hiển thị lại khi chuyển trang."""
+    return jsonify(provider=current_app.config['LLM_PROVIDER'],
+                   history=[{'q': t['q'], 'html': str(chat_format(t['a']))} for t in session.get('ai_history', [])])
+
+
+@ai.route('/reset', methods=['POST'])
+def reset_json():
+    session.pop('ai_history', None)
+    return jsonify(ok=True)
