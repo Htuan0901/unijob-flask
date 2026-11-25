@@ -43,7 +43,7 @@
 {% endmacro %}
 
 {% macro job_card(job, score=None, reasons=None) %}
-<div class="card job-card h-100 shadow-sm">
+<div class="card job-card jt-{{ job.job_type }} h-100 shadow-sm">
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-start gap-2">
       <h6 class="card-title mb-1"><a class="stretched-link text-decoration-none" href="{{ url_for('main.job_detail', job_id=job.id) }}">{{ job.title }}</a></h6>
@@ -52,7 +52,8 @@
     <div class="text-muted small mb-2">{{ job.company.name if job.company else job.employer.full_name }}
       {% if job.company and job.company.verified %}<i class="bi bi-patch-check-fill text-primary" title="Đã xác minh"></i>{% endif %}</div>
     <div class="small"><i class="bi bi-cash-coin"></i> <strong class="salary">{{ job.salary_label }}</strong></div>
-    <div class="small text-muted"><i class="bi bi-geo-alt"></i> {{ job.city }} · {{ job.job_type_label }}</div>
+    <div class="small text-muted d-flex flex-wrap align-items-center gap-1"><span><i class="bi bi-geo-alt"></i> {{ job.city }}</span>
+      <span class="jt-chip">{{ job.job_type_label }}</span></div>
     {% if reasons %}<div class="small text-primary mt-1">{{ reasons|join(' · ') }}</div>{% endif %}
   </div>
   <div class="card-footer bg-transparent small text-muted d-flex justify-content-between">

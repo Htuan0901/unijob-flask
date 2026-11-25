@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{% block title %}UniJob{% endblock %} · UniJob</title>
+  {# Logo vuông UniJob hiện trên tab trình duyệt (SVG cho trình duyệt mới, PNG/ICO cho trình duyệt cũ) #}
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <meta name="theme-color" content="#1b2a4a">
   {{ bootstrap.load_css() }}
   {{ bootstrap.load_icon_font_css() }}
   {# Font gốc của UniJob; khi không có mạng trình duyệt tự dùng font hệ thống #}
@@ -14,7 +19,7 @@
   {% block head %}{% endblock %}
 </head>
 <body class="d-flex flex-column min-vh-100">
-<nav class="navbar navbar-expand-lg navbar-dark bg-brand sticky-top shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-dark bg-brand sticky-top shadow-sm brand-bar">
   <div class="container">
     <a class="navbar-brand fw-bold" href="{{ url_for('main.index') }}"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span> UniJob</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
@@ -88,6 +93,7 @@
 </main>
 
 <footer class="site-footer py-4 mt-5 small">
+  <div class="brand-stripe" aria-hidden="true"></div>
   <div class="container d-flex flex-wrap justify-content-between gap-2">
     <span>© {{ now().year }} UniJob – Đồ án Lập trình Python nâng cao (Flask)</span>
     <span>

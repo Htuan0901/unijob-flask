@@ -3,6 +3,7 @@
 {% block title %}Việc làm part-time cho sinh viên{% endblock %}
 {% block content %}
 <section class="hero py-5 mb-4">
+  <div class="hero-deco" aria-hidden="true"><i></i><i></i><i></i></div>
   <div class="container">
     <h1 class="fw-bold mb-2">Tìm việc làm thêm phù hợp lịch học</h1>
     <p class="lead mb-4">{{ total }} việc đang tuyển từ {{ companies }} nhà tuyển dụng · gợi ý bằng AI theo hồ sơ của bạn</p>
@@ -30,16 +31,22 @@
   </div>
   {% endif %}
 
-  <h4 class="mb-3">Danh mục nghề</h4>
+  <h4 class="mb-3"><i class="bi bi-grid-3x3-gap-fill text-primary"></i> Danh mục nghề</h4>
   <div class="row row-cols-2 row-cols-md-4 g-2 mb-4">
+    {% set icons = {'SALES': 'bag-check', 'MANUFACTURING': 'gear-wide-connected', 'MARKETING': 'megaphone',
+                    'FINANCE': 'piggy-bank', 'HOSPITALITY': 'cup-hot', 'DESIGN': 'palette', 'HR_ADMIN': 'people',
+                    'CONSTRUCTION': 'building', 'IT': 'laptop', 'LOGISTICS': 'truck', 'ELECTRONICS': 'cpu',
+                    'EDUCATION': 'mortarboard', 'HEALTHCARE': 'heart-pulse', 'LANGUAGE': 'translate',
+                    'OTHER': 'grid', 'AGRICULTURE': 'tree'} %}
     {% for code, name in CATEGORIES %}
-    <div class="col"><a class="cat-tile" href="{{ url_for('main.jobs', category=code) }}">
-      <div class="fw-semibold small">{{ name }}</div><div class="text-muted small">{{ counts.get(code, 0) }} việc</div></a></div>
+    <div class="col"><a class="cat-tile tone-{{ loop.index0 % 6 }}" href="{{ url_for('main.jobs', category=code) }}">
+      <span class="cat-icon"><i class="bi bi-{{ icons.get(code, 'briefcase') }}"></i></span>
+      <span><span class="d-block fw-semibold small">{{ name }}</span><span class="d-block text-muted small">{{ counts.get(code, 0) }} việc</span></span></a></div>
     {% endfor %}
   </div>
 
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0">Việc mới đăng</h4><a href="{{ url_for('main.jobs') }}">Xem tất cả →</a>
+    <h4 class="mb-0"><i class="bi bi-clock-history text-success"></i> Việc mới đăng</h4><a href="{{ url_for('main.jobs') }}">Xem tất cả →</a>
   </div>
   <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
     {% for j in latest %}<div class="col">{{ job_card(j) }}</div>{% endfor %}
@@ -47,9 +54,9 @@
 
   {% if market %}
   <div class="row g-3">
-    <div class="col-md-4"><div class="stat"><div class="num">{{ '{:,}'.format(market.totalJobs).replace(',', '.') }}</div>tin VietJobs đã phân tích</div></div>
-    <div class="col-md-4"><div class="stat"><div class="num">{{ market.partTimeOverall.median }} tr</div>trung vị lương part-time / tháng</div></div>
-    <div class="col-md-4"><div class="stat"><div class="num">{{ (market.negotiableRatio * 100)|round|int }}%</div>tin để lương "thỏa thuận"</div></div>
+    <div class="col-md-4"><div class="stat tone-0"><div class="num">{{ '{:,}'.format(market.totalJobs).replace(',', '.') }}</div>tin VietJobs đã phân tích</div></div>
+    <div class="col-md-4"><div class="stat tone-2"><div class="num">{{ market.partTimeOverall.median }} tr</div>trung vị lương part-time / tháng</div></div>
+    <div class="col-md-4"><div class="stat tone-1"><div class="num">{{ (market.negotiableRatio * 100)|round|int }}%</div>tin để lương "thỏa thuận"</div></div>
   </div>
   {% endif %}
 </div>

@@ -274,6 +274,12 @@ def currency():
     return render_template('currency.html', amount=amount, rates=rates)
 
 
+@main.route('/favicon.ico')
+def favicon():
+    """Trình duyệt luôn tự hỏi /favicon.ico -> trả logo vuông UniJob."""
+    return current_app.send_static_file('favicon.ico')
+
+
 @main.route('/about')
 def about():
     return render_template('about.html')
