@@ -21,8 +21,16 @@ services:
         value: "1"
       - key: WEB_CONCURRENCY       # gói free 512 MB RAM
         value: "2"
+      # Trợ lý AI: để trống = demo; dùng Gemini thì đặt LLM_PROVIDER=openai, LLM_BASE_URL,
+      # LLM_MODEL, LLM_API_KEY trong Environment (sync: false để Blueprint không ghi đè)
       - key: LLM_PROVIDER
-        value: demo
+        sync: false
+      - key: LLM_BASE_URL
+        sync: false
+      - key: LLM_MODEL
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
       - key: UNIJOB_ADMIN
         sync: false
       - key: EXCHANGE_API_KEY      # tùy chọn, để trống dùng open.er-api.com
