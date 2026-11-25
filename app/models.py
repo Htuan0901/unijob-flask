@@ -320,7 +320,7 @@ class JobPost(db.Model):
     def salary_label(self):
         unit = SALARY_UNITS.get(self.salary_unit, '')
         fmt = lambda v: f'{v:,.0f}'.replace(',', '.')
-        if self.salary_min and self.salary_max:
+        if self.salary_min and self.salary_max and self.salary_min != self.salary_max:
             return f'{fmt(self.salary_min)} – {fmt(self.salary_max)} đ/{unit}'
         if self.salary_max or self.salary_min:
             return f'{fmt(self.salary_max or self.salary_min)} đ/{unit}'

@@ -299,3 +299,14 @@ a.cite:hover { background: var(--info); color: #fff; }
   .cw.is-open .cw-fab { display: none; }
 }
 @media print { .cw { display: none !important; } }
+
+/* Tin việc trong câu trả lời: cả thẻ bấm được, mở trang chi tiết tin */
+.chat-list li.job { padding: 0; background: none; }
+.chat-list li.job::before { display: none; }
+.job-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px 9px 14px; border-radius: 10px;
+            background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--sky);
+            color: var(--ink); text-decoration: none; transition: all .15s; }
+.job-item > i { margin-left: auto; color: var(--muted); flex: 0 0 auto; transition: transform .15s; }
+.job-item:hover { border-color: var(--sky); border-left-color: var(--shift); background: var(--sky-soft); color: var(--ink); }
+.job-item:hover > i { transform: translateX(3px); color: var(--info); }
+.chat-suggest { scrollbar-width: none; } .chat-suggest::-webkit-scrollbar { display: none; }

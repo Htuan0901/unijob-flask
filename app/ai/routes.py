@@ -21,15 +21,25 @@ class AskForm(FlaskForm):
     submit = SubmitField('Hỏi')
 
 
+CITE = re.compile(r'\s*\[(\d+(?:\s*,\s*\d+)*)\]')
+
+
 @ai.app_template_filter('chat_format')
 def chat_format(text, citations=None):
-    """Định dạng câu trả lời: thoát HTML, **đậm**, dòng '- '/'1. ' thành danh sách, [n] thành liên kết tới nguồn."""
-    urls = {c['n']: c['url'] for c in (citations or [])}
+    """Định dạng câu trả lời: thoát HTML, **đậm**, dòng '- '/'1. ' thành danh sách; bỏ số trích dẫn [n].
+    Mục danh sách có trích dẫn tới một tin tuyển dụng thành thẻ bấm được mở trang chi tiết tin đó."""
+    urls = {int(k): v for k, v in (citations or {}).items()} if isinstance(citations, dict) else \
+        {c['n']: c['url'] for c in (citations or [])}
 
     def inline(line):
-        line = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', str(escape(line)))
-        return re.sub(r'\[(\d+)\]', lambda m: (f'<a class="cite" href="{urls[int(m[1])]}">[{m[1]}]</a>'
-                                                 if int(m[1]) in urls else f'<span class="cite">[{m[1]}]</span>'), line)
+        return re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', str(escape(CITE.sub('', line).strip())))
+
+    def job_url(line):
+        for m in CITE.finditer(line):
+            for n in re.findall(r'\d+', m[1]):
+                if urls.get(int(n), '').startswith('/jobs/'):
+                    return urls[int(n)]
+        return None
 
     html, in_list = [], False
     for raw in (text or '').splitlines():
@@ -42,7 +52,12 @@ def chat_format(text, citations=None):
             html.append('</ul>')
             in_list = False
         if item:
-            html.append(f'<li>{inline(item[1])}</li>')
+            url = job_url(item[1])
+            if url:
+                html.append(f'<li class="job"><a class="job-item" href="{escape(url)}">{inline(item[1])}'
+                            f'<i class="bi bi-chevron-right"></i></a></li>')
+            else:
+                html.append(f'<li>{inline(item[1])}</li>')
         elif line.startswith('(Chế độ demo'):
             html.append(f'<div class="chat-note"><i class="bi bi-info-circle"></i> {escape(line.strip("()"))}</div>')
         elif line:
@@ -77,7 +92,8 @@ def ask(question):
     history = session.get('ai_history', [])
     result = rag.answer(question, history, k=current_app.config['AI_TOP_K'])
     result['refused'] = False
-    session['ai_history'] = (history + [{'q': question, 'a': result['answer'][:400]}])[-3:]
+    urls = {str(c['n']): c['url'] for c in result['citations']}      # để lịch sử vẫn bấm được vào tin
+    session['ai_history'] = (history + [{'q': question, 'a': result['answer'][:600], 'u': urls}])[-3:]
     return result
 
 
@@ -111,7 +127,8 @@ def ask_json():
 def history_json():
     """Lịch sử hội thoại trong phiên để khung chat nổi hiển thị lại khi chuyển trang."""
     return jsonify(provider=current_app.config['LLM_PROVIDER'],
-                   history=[{'q': t['q'], 'html': str(chat_format(t['a']))} for t in session.get('ai_history', [])])
+                   history=[{'q': t['q'], 'html': str(chat_format(t['a'], t.get('u')))}
+                            for t in session.get('ai_history', [])])
 
 
 @ai.route('/reset', methods=['POST'])

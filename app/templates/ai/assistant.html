@@ -7,7 +7,7 @@
       <span class="chat-avatar bot" aria-hidden="true"><i class="bi bi-stars"></i></span>
       <div class="flex-grow-1">
         <div class="fw-bold">Trợ lý UniJob</div>
-        <div class="small chat-sub">Hỏi về cách dùng UniJob hoặc việc đang tuyển · trả lời có trích nguồn [n]</div>
+        <div class="small chat-sub">Hỏi về cách dùng UniJob hoặc việc đang tuyển · bấm vào tin để xem chi tiết</div>
       </div>
       <span class="chat-mode {{ 'live' if provider != 'demo' else '' }}" title="Chế độ LLM">
         <i class="bi bi-circle-fill"></i> {{ 'Gemini/LLM' if provider == 'openai' else provider }}</span>
@@ -23,21 +23,20 @@
       {% for t in past %}
       <div class="chat-row me"><div class="bubble me">{{ t.q }}</div></div>
       <div class="chat-row bot"><span class="chat-avatar bot sm"><i class="bi bi-stars"></i></span>
-        <div class="bubble bot faded">{{ t.a | chat_format }}</div></div>
+        <div class="bubble bot faded">{{ t.a | chat_format(t.u) }}</div></div>
       {% endfor %}
       {% if result %}
       <div class="chat-row me"><div class="bubble me">{{ result.question }}</div></div>
       <div class="chat-row bot" id="latest"><span class="chat-avatar bot sm"><i class="bi bi-stars"></i></span>
         <div class="bubble bot">
-          {{ result.answer | chat_format(result.citations) }}
+          {% set answer_html = result.answer | chat_format(result.citations) %}{{ answer_html }}
           {% if result.provider == 'demo (LLM lỗi)' %}<div class="chat-note warn"><i class="bi bi-exclamation-triangle"></i>
             Mô hình AI đang bận hoặc lỗi nên tạm trả lời ở chế độ demo. Bạn thử lại sau ít phút.</div>{% endif %}
-          {% if result.citations %}
+          {% if result.citations and 'job-item' not in answer_html %}
           <div class="chat-sources">
             <div class="label">Nguồn tham khảo</div>
             {% for c in result.citations %}
             <a class="source" href="{{ c.url }}">
-              <span class="n">{{ c.n }}</span>
               <i class="bi {{ 'bi-briefcase' if c.source == 'job' else 'bi-book' }}"></i>
               <span class="t">{{ c.title }}</span>
               <span class="kind">{{ 'Tin tuyển dụng' if c.source == 'job' else 'Hướng dẫn' }}</span>

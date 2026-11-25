@@ -19,12 +19,12 @@
   function sources(cits) {
     if (!cits || !cits.length) return '';
     return '<div class="chat-sources"><div class="label">Nguồn tham khảo</div>' + cits.map(function (c) {
-      return '<a class="source" href="' + esc(c.url) + '"><span class="n">' + c.n + '</span><i class="bi ' +
+      return '<a class="source" href="' + esc(c.url) + '"><i class="bi ' +
         (c.source === 'job' ? 'bi-briefcase' : 'bi-book') + '"></i><span class="t">' + esc(c.title) + '</span></a>';
     }).join('') + '</div>';
   }
   function setMode(p) {
-    mode.textContent = p === 'demo' ? 'Chế độ demo' : 'Trả lời bằng AI · có nguồn [n]';
+    mode.textContent = p === 'demo' ? 'Chế độ demo' : 'Trả lời bằng AI · bấm vào tin để xem';
   }
   function open(state) {
     panel.hidden = !state; root.classList.toggle('is-open', state); fab.setAttribute('aria-expanded', state);
@@ -52,7 +52,8 @@
       .then(function (r) { return r.json(); })
       .then(function (d) {
         var warn = d.provider === 'demo (LLM lỗi)' ? '<div class="chat-note warn"><i class="bi bi-exclamation-triangle"></i> Mô hình AI đang bận nên tạm trả lời ở chế độ demo.</div>' : '';
-        addBot(d.html || esc(d.answer || d.error || 'Có lỗi xảy ra.'), warn + sources(d.citations));
+        var html = d.html || esc(d.answer || d.error || 'Có lỗi xảy ra.');
+        addBot(html, warn + (html.indexOf('job-item') < 0 ? sources(d.citations) : ''));
       })
       .catch(function () { addBot('<p>Không kết nối được máy chủ, bạn thử lại nhé.</p>'); })
       .finally(function () {

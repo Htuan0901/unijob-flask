@@ -23,7 +23,7 @@ def test_assistant_page_demo_mode(client, people):
     rag.get_index(rebuild=True)
     r = client.post('/ai/assistant', data={'question': 'Quên mật khẩu thì làm sao?'})
     html = r.get_data(as_text=True)
-    assert 'Quên mật khẩu' in html and '[1]' in html
+    assert 'Quên mật khẩu' in html and 'chat-sources' in html and '[1]' not in html
 
 
 def test_prompt_injection_refused(client, app):
@@ -76,3 +76,12 @@ def test_floating_widget_and_json_html(client, people):
     assert h['history'][-1]['q'] == 'Quên mật khẩu thì làm sao?'
     client.post('/ai/reset')
     assert client.get('/ai/history').json['history'] == []
+
+
+def test_chat_format_links_jobs_and_strips_citations():
+    from app.ai.routes import chat_format
+    cits = [{'n': 1, 'url': '/jobs/7'}, {'n': 2, 'url': '/about'}]
+    html = str(chat_format('Có 2 tin:\n- Thực tập kế toán, lương 2 triệu [1].\n- Xem hướng dẫn [2]', cits))
+    assert '<a class="job-item" href="/jobs/7">' in html and '[1]' not in html and '[2]' not in html
+    assert html.count('job-item') == 1
+    assert 'href="/jobs/7"' in str(chat_format('- Tin A [1]', {'1': '/jobs/7'}))   # lịch sử trong session
