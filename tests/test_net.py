@@ -156,3 +156,22 @@ def test_brevo_error_does_not_break_request(app, monkeypatch):
     app.config['BREVO_API_KEY'] = 'sai'
     with app.test_request_context():
         email_mod.send_email('sv@test.vn', 'Test', 'email/confirm', user=type('U', (), {'full_name': 'SV'})(), link='l')
+
+
+def test_llm_falls_back_to_next_model(app, monkeypatch):
+    from app.ai import llm
+    calls = []
+
+    def fake_post(url, payload, headers=None, timeout=None):
+        calls.append(payload['model'])
+        if payload['model'] == 'old-model':
+            err = NetworkError('HTTP 404: model no longer available')
+            err.status = 404
+            raise err
+        return {'choices': [{'message': {'content': ' ok '}}]}
+
+    monkeypatch.setattr(llm, 'post_json', fake_post)
+    with app.app_context():
+        c = llm.LLMClient('openai', 'old-model, new-model', 'https://x/v1', 'k')
+        assert c.chat([{'role': 'user', 'content': 'hi'}]) == 'ok'
+    assert calls == ['old-model', 'new-model']

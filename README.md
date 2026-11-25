@@ -67,7 +67,7 @@ Tài khoản demo `sv@unijob.vn` có sẵn một CV mẫu sau khi chạy `flask 
 ## Biến môi trường chính
 `SECRET_KEY`, `DATABASE_URL` (production, vd Postgres), `CV_STORAGE` (`disk`/`db`), `DEV_DATABASE_URL` (vd `mysql+pymysql://user:pass@localhost/unijob`), `MAIL_SERVER`, `MAIL_USERNAME`,
 `MAIL_PASSWORD`, `BREVO_API_KEY` (gửi mail qua API Brevo khi host chặn SMTP; không đặt MAIL_SERVER/BREVO_API_KEY → email lưu ở `instance/outbox`, xem tại Quản trị › Hộp thư đi),
-`EXCHANGE_API_KEY`, `NETWORK_ENABLED`, `LLM_PROVIDER` (`demo`/`ollama`/`openai`), `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`.
+`EXCHANGE_API_KEY`, `NETWORK_ENABLED`, `LLM_PROVIDER` (`demo`/`ollama`/`openai`), `LLM_BASE_URL`, `LLM_MODEL` (có thể ghi nhiều model cách nhau dấu phẩy, model lỗi 404/429/503 thì tự thử model kế; Gemini: `gemini-flash-lite-latest,gemini-flash-latest`), `LLM_API_KEY`.
 
 ## REST API
 | Phương thức | Đường dẫn | Mô tả | Xác thực |

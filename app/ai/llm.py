@@ -35,10 +35,19 @@ class LLMClient:
             if self.provider == 'openai':
                 if not self.api_key:
                     raise LLMError('Thiếu LLM_API_KEY')
-                data = post_json(f'{self.base_url}/chat/completions',
-                                 {'model': self.model, 'messages': messages, 'temperature': temperature},
-                                 headers={'Authorization': f'Bearer {self.api_key}'}, timeout=self.timeout)
-                return data['choices'][0]['message']['content'].strip()
+                # LLM_MODEL có thể là danh sách cách nhau bởi dấu phẩy: model bận/hết hạn (404/429/503) thì thử model kế
+                models = [m.strip() for m in (self.model or '').split(',') if m.strip()]
+                for i, model in enumerate(models):
+                    try:
+                        data = post_json(f'{self.base_url}/chat/completions',
+                                         {'model': model, 'messages': messages, 'temperature': temperature},
+                                         headers={'Authorization': f'Bearer {self.api_key}'}, timeout=self.timeout)
+                        return data['choices'][0]['message']['content'].strip()
+                    except NetworkError as e:
+                        if i == len(models) - 1 or getattr(e, 'status', None) not in (404, 429, 500, 503):
+                            raise
+                        current_app.logger.warning('LLM model %s lỗi, thử model kế: %s', model, e)
+                raise LLMError('Thiếu LLM_MODEL')
         except (NetworkError, KeyError, IndexError, TypeError) as e:
             current_app.logger.warning('LLM lỗi: %s', e)
             raise LLMError(str(e)) from e

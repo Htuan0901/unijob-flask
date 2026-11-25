@@ -72,7 +72,13 @@ def fetch(url, params=None, headers=None, data=None, method=None, timeout=None, 
         with urllib.request.urlopen(req, timeout=timeout or _cfg('HTTP_TIMEOUT', 6)) as resp:
             result = (resp.status, resp.read())
     except urllib.error.HTTPError as e:
-        raise NetworkError(f'HTTP {e.code} khi gọi {url}') from e
+        try:
+            detail = e.read(300).decode('utf-8', errors='replace').strip()
+        except Exception:
+            detail = ''
+        err = NetworkError(f'HTTP {e.code} khi gọi {url}' + (f': {detail}' if detail else ''))
+        err.status = e.code
+        raise err from e
     except (urllib.error.URLError, TimeoutError, OSError) as e:
         raise NetworkError(f'Không kết nối được {url}: {e}') from e
     _cache_set(key, result, cache_ttl)
