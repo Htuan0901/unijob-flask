@@ -38,9 +38,10 @@ def cv_path(profile):
 
 def save_cv(profile, file_storage):
     """Ghi tệp PDF cho hồ sơ sinh viên, thay thế CV cũ nếu có."""
-    head = file_storage.stream.read(len(PDF_MAGIC))
+    # Chuẩn PDF cho phép phần đầu '%PDF-' nằm trong 1024 byte đầu (một số trình xuất PDF chèn BOM/khoảng trắng)
+    head = file_storage.stream.read(1024)
     file_storage.stream.seek(0)
-    if head != PDF_MAGIC:
+    if PDF_MAGIC not in head:
         raise CVError('Tệp không phải PDF hợp lệ.')
     original = secure_filename(file_storage.filename or '') or 'cv.pdf'
     if not original.lower().endswith('.pdf'):

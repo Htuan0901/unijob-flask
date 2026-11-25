@@ -16,7 +16,7 @@ flask seed                       # nạp dữ liệu mẫu (~370 tin, 29 sinh vi
 flask run                        # http://127.0.0.1:5000
 ```
 
-Lệnh khác: `flask test` (chạy 69 test pytest), `flask seed --reset`, `flask ai-reindex`, `flask shell`.
+Lệnh khác: `flask test` (chạy 70 test pytest), `flask seed --reset`, `flask ai-reindex`, `flask shell`.
 Docker: `docker build -t unijob . && docker run -p 5000:5000 unijob`.
 
 ### Bản chạy thật trên web
@@ -53,7 +53,7 @@ unijob-flask/
 │   └── data/            # dữ liệu VietJobs đã xử lý: seed_jobs, market_stats, category_model
 ├── migrations/          # Flask-Migrate (Alembic)
 ├── desktop/             # ứng dụng Tkinter + client urllib
-└── tests/               # pytest: 69 test
+└── tests/               # pytest: 70 test
 ```
 
 ## CV PDF của sinh viên

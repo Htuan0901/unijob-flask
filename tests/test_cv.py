@@ -105,3 +105,9 @@ def test_postgres_url_normalized():
     assert _db_url('postgresql://u:p@h/db?sslmode=require') == 'postgresql+psycopg://u:p@h/db?sslmode=require'
     assert _db_url('mysql+pymysql://u:p@h/db') == 'mysql+pymysql://u:p@h/db'
     assert _db_url(None) is None
+
+
+def test_accepts_pdf_with_leading_bytes(client, people):
+    """PDF hợp lệ có vài byte trước '%PDF-' (BOM, khoảng trắng) vẫn được nhận."""
+    login(client, 'sv@test.vn')
+    assert 'Đã tải CV lên' in upload(client, b'\xef\xbb\xbf\r\n' + PDF).get_data(as_text=True)
