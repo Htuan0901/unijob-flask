@@ -3,6 +3,7 @@ import re
 import time
 
 from flask import flash, jsonify, redirect, render_template, request, session, url_for
+from markupsafe import Markup, escape
 from flask_wtf import FlaskForm
 from wtforms import SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length
@@ -18,6 +19,37 @@ class AskForm(FlaskForm):
     question = TextAreaField('Câu hỏi', validators=[DataRequired(), Length(max=500)],
                              render_kw={'rows': 2, 'placeholder': 'VD: Làm sao để rút hồ sơ đã nộp?'})
     submit = SubmitField('Hỏi')
+
+
+@ai.app_template_filter('chat_format')
+def chat_format(text, citations=None):
+    """Định dạng câu trả lời: thoát HTML, **đậm**, dòng '- '/'1. ' thành danh sách, [n] thành liên kết tới nguồn."""
+    urls = {c['n']: c['url'] for c in (citations or [])}
+
+    def inline(line):
+        line = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', str(escape(line)))
+        return re.sub(r'\[(\d+)\]', lambda m: (f'<a class="cite" href="{urls[int(m[1])]}">[{m[1]}]</a>'
+                                                 if int(m[1]) in urls else f'<span class="cite">[{m[1]}]</span>'), line)
+
+    html, in_list = [], False
+    for raw in (text or '').splitlines():
+        line = raw.strip()
+        item = re.match(r'^(?:[-*•]|\d+[.)])\s+(.*)', line)
+        if item and not in_list:
+            html.append('<ul class="chat-list">')
+            in_list = True
+        elif not item and in_list:
+            html.append('</ul>')
+            in_list = False
+        if item:
+            html.append(f'<li>{inline(item[1])}</li>')
+        elif line.startswith('(Chế độ demo'):
+            html.append(f'<div class="chat-note"><i class="bi bi-info-circle"></i> {escape(line.strip("()"))}</div>')
+        elif line:
+            html.append(f'<p>{inline(line)}</p>')
+    if in_list:
+        html.append('</ul>')
+    return Markup(''.join(html))
 
 
 def clean_input(text):
@@ -59,6 +91,7 @@ def assistant():
     if form.validate_on_submit():
         result = ask(form.question.data)
         result['question'] = clean_input(form.question.data)
+        form.question.data = ''          # ô nhập trống sau khi gửi, như ứng dụng chat
     return render_template('ai/assistant.html', form=form, result=result, history=session.get('ai_history', []),
                            provider=current_app.config['LLM_PROVIDER'])
 

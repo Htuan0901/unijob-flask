@@ -1,31 +1,87 @@
 {% extends 'base.html' %}
-{% from '_macros.html' import field %}
 {% block title %}Trợ lý AI{% endblock %}
 {% block content %}
-<div class="container" style="max-width:860px">
-  <h3><i class="bi bi-stars text-warning"></i> Trợ lý UniJob</h3>
-  <p class="text-muted small">Hỏi về cách dùng UniJob hoặc việc đang tuyển. Câu trả lời dựa trên tài liệu hướng dẫn và tin tuyển dụng (RAG), có trích dẫn [n].
-    Chế độ LLM: <span class="badge text-bg-secondary">{{ provider }}</span></p>
-  {% set past = history[:-1] if result and not result.refused else history %}
-  {% if past %}
-  <div class="mb-3">{% for t in past %}
-    <div class="small"><strong>Bạn:</strong> {{ t.q }}</div><div class="small text-muted mb-2"><strong>Trợ lý:</strong> {{ t.a[:200] }}{% if t.a|length > 200 %}…{% endif %}</div>
-  {% endfor %}<a class="small" href="{{ url_for('ai.assistant', reset=1) }}">Xóa lịch sử</a></div>
-  {% endif %}
-  {% if result %}
-  <div class="card mb-3 shadow-sm"><div class="card-body">
-    <div class="small text-muted mb-1">Bạn hỏi: {{ result.question }}</div>
-    <div class="chat-answer p-3 rounded">{{ result.answer }}</div>
-    {% if result.citations %}<div class="mt-2 small"><strong>Nguồn:</strong>
-      {% for c in result.citations %}<div>[{{ c.n }}] <a href="{{ c.url }}">{{ c.title }}</a> <span class="text-muted">({{ 'tin tuyển dụng' if c.source == 'job' else 'hướng dẫn' }}, điểm {{ c.score }})</span></div>{% endfor %}</div>{% endif %}
-  </div></div>
-  {% endif %}
-  <form method="post" class="card card-body shadow-sm">{{ form.hidden_tag() }}{{ field(form.question) }}
-    <div class="d-flex flex-wrap gap-2">
-      <button class="btn btn-primary">Hỏi</button>
-      {% for q in ['Làm sao để rút hồ sơ đã nộp?', 'Có việc pha chế nào ca tối không?', 'Lương part-time ngành IT bao nhiêu?', 'Quên mật khẩu thì làm gì?'] %}
-        <button class="btn btn-sm btn-outline-secondary" type="button" onclick="document.getElementById('question').value=this.textContent">{{ q }}</button>
+<div class="container chat-wrap">
+  <div class="chat-card">
+    <div class="chat-head">
+      <span class="chat-avatar bot" aria-hidden="true"><i class="bi bi-stars"></i></span>
+      <div class="flex-grow-1">
+        <div class="fw-bold">Trợ lý UniJob</div>
+        <div class="small chat-sub">Hỏi về cách dùng UniJob hoặc việc đang tuyển · trả lời có trích nguồn [n]</div>
+      </div>
+      <span class="chat-mode {{ 'live' if provider != 'demo' else '' }}" title="Chế độ LLM">
+        <i class="bi bi-circle-fill"></i> {{ 'Gemini/LLM' if provider == 'openai' else provider }}</span>
+    </div>
+
+    <div class="chat-body" id="chat-body">
+      {% set past = history[:-1] if result and not result.refused else history %}
+      {% if not past and not result %}
+      <div class="chat-row bot"><span class="chat-avatar bot sm"><i class="bi bi-stars"></i></span>
+        <div class="bubble bot"><p>Xin chào! Mình có thể giúp bạn tìm việc phù hợp hoặc hướng dẫn dùng UniJob.
+          Bạn có thể chọn một câu hỏi gợi ý bên dưới.</p></div></div>
+      {% endif %}
+      {% for t in past %}
+      <div class="chat-row me"><div class="bubble me">{{ t.q }}</div></div>
+      <div class="chat-row bot"><span class="chat-avatar bot sm"><i class="bi bi-stars"></i></span>
+        <div class="bubble bot faded">{{ t.a | chat_format }}</div></div>
       {% endfor %}
-    </div></form>
+      {% if result %}
+      <div class="chat-row me"><div class="bubble me">{{ result.question }}</div></div>
+      <div class="chat-row bot" id="latest"><span class="chat-avatar bot sm"><i class="bi bi-stars"></i></span>
+        <div class="bubble bot">
+          {{ result.answer | chat_format(result.citations) }}
+          {% if result.provider == 'demo (LLM lỗi)' %}<div class="chat-note warn"><i class="bi bi-exclamation-triangle"></i>
+            Mô hình AI đang bận hoặc lỗi nên tạm trả lời ở chế độ demo. Bạn thử lại sau ít phút.</div>{% endif %}
+          {% if result.citations %}
+          <div class="chat-sources">
+            <div class="label">Nguồn tham khảo</div>
+            {% for c in result.citations %}
+            <a class="source" href="{{ c.url }}">
+              <span class="n">{{ c.n }}</span>
+              <i class="bi {{ 'bi-briefcase' if c.source == 'job' else 'bi-book' }}"></i>
+              <span class="t">{{ c.title }}</span>
+              <span class="kind">{{ 'Tin tuyển dụng' if c.source == 'job' else 'Hướng dẫn' }}</span>
+            </a>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div></div>
+      {% endif %}
+    </div>
+
+    <form method="post" class="chat-input" id="chat-form">{{ form.hidden_tag() }}
+      <div class="chat-suggest">
+        {% for q in ['Có việc thực tập CNTT nào ở TP.HCM?', 'Có việc pha chế nào ca tối không?', 'Lương part-time ngành IT bao nhiêu?', 'Làm sao để rút hồ sơ đã nộp?'] %}
+        <button class="chip" type="button" data-q="{{ q }}">{{ q }}</button>
+        {% endfor %}
+      </div>
+      <div class="chat-compose">
+        {{ form.question(class_='form-control', id='question', rows=1, placeholder='Nhập câu hỏi… (Enter để gửi, Shift+Enter xuống dòng)') }}
+        <button class="btn btn-send" type="submit" aria-label="Gửi"><i class="bi bi-send-fill"></i></button>
+      </div>
+      {% for e in form.question.errors %}<div class="small text-danger mt-1">{{ e }}</div>{% endfor %}
+      <div class="d-flex justify-content-between small mt-2 chat-sub">
+        <span>Câu trả lời dựa trên dữ liệu UniJob, có thể chưa đầy đủ.</span>
+        {% if history %}<a href="{{ url_for('ai.assistant', reset=1) }}"><i class="bi bi-trash3"></i> Xóa lịch sử</a>{% endif %}
+      </div>
+    </form>
+  </div>
 </div>
+<script>
+(function () {
+  var body = document.getElementById('chat-body'), q = document.getElementById('question'), f = document.getElementById('chat-form');
+  var latest = document.getElementById('latest');
+  body.scrollTop = latest ? latest.previousElementSibling.offsetTop - body.offsetTop - 12 : body.scrollHeight;
+  document.querySelectorAll('.chat-suggest .chip').forEach(function (b) {
+    b.addEventListener('click', function () { q.value = b.dataset.q; q.focus(); });
+  });
+  q.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (q.value.trim()) f.requestSubmit(); }
+  });
+  f.addEventListener('submit', function () {
+    var btn = f.querySelector('.btn-send'); btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+  });
+})();
+</script>
 {% endblock %}
