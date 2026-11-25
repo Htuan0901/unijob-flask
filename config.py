@@ -44,6 +44,9 @@ class Config:
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or 'UniJob <no-reply@unijob.vn>'
     # Không cấu hình SMTP -> không gửi thật, email được lưu vào instance/outbox để xem lại
     MAIL_SUPPRESS_SEND = _bool('MAIL_SUPPRESS_SEND', not os.environ.get('MAIL_SERVER'))
+    # Gửi email thật qua API HTTPS của Brevo (miễn phí 300 mail/ngày) khi host chặn SMTP.
+    # MAIL_DEFAULT_SENDER phải là địa chỉ đã xác minh trong Brevo (Senders).
+    BREVO_API_KEY = os.environ.get('BREVO_API_KEY')
     UNIJOB_MAIL_SUBJECT_PREFIX = '[UniJob]'
     UNIJOB_ADMIN = os.environ.get('UNIJOB_ADMIN') or 'admin@unijob.vn'
 
@@ -93,6 +96,7 @@ class TestingConfig(Config):
     MAIL_SUPPRESS_SEND = True
     NETWORK_ENABLED = False
     MAIL_ASYNC = False
+    BREVO_API_KEY = None
     LLM_PROVIDER = 'demo'
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or 'sqlite://'
 

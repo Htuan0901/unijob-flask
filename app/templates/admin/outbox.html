@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
   <h3>Hộp thư đi</h3>
-  <p class="text-muted small">{% if suppress %}Chưa cấu hình SMTP (MAIL_SERVER) nên email được lưu vào <code>instance/outbox/</code> thay vì gửi thật.
+  <p class="text-muted small">{% if brevo %}Email được gửi thật qua API Brevo (HTTPS); dưới đây là bản sao lưu trong <code>instance/outbox/</code>.{% elif suppress %}Chưa cấu hình SMTP (MAIL_SERVER) nên email được lưu vào <code>instance/outbox/</code> thay vì gửi thật.
     Đặt MAIL_SERVER, MAIL_USERNAME, MAIL_PASSWORD trong .env để gửi qua Gmail/SMTP.{% else %}SMTP đã cấu hình – email được gửi thật.{% endif %}</p>
   {% for m in items %}
     <details class="card card-body mb-2 shadow-sm"><summary><strong>{{ m.subject }}</strong> → {{ m.to }} <small class="text-muted">{{ m.name[:15] }}</small></summary>

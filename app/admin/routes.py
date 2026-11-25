@@ -132,4 +132,5 @@ def outbox():
             body = msg.get_body(preferencelist=('plain',))
             items.append({'name': name, 'to': msg['To'], 'subject': msg['Subject'],
                           'body': body.get_content() if body else ''})
-    return render_template('admin/outbox.html', items=items, suppress=current_app.config['MAIL_SUPPRESS_SEND'])
+    return render_template('admin/outbox.html', items=items, suppress=current_app.config['MAIL_SUPPRESS_SEND'],
+                           brevo=bool(current_app.config.get('BREVO_API_KEY')))

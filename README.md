@@ -16,7 +16,7 @@ flask seed                       # nạp dữ liệu mẫu (~370 tin, 29 sinh vi
 flask run                        # http://127.0.0.1:5000
 ```
 
-Lệnh khác: `flask test` (chạy 70 test pytest), `flask seed --reset`, `flask ai-reindex`, `flask shell`.
+Lệnh khác: `flask test` (chạy 72 test pytest), `flask seed --reset`, `flask ai-reindex`, `flask shell`.
 Docker: `docker build -t unijob . && docker run -p 5000:5000 unijob`.
 
 ### Bản chạy thật trên web
@@ -53,7 +53,7 @@ unijob-flask/
 │   └── data/            # dữ liệu VietJobs đã xử lý: seed_jobs, market_stats, category_model
 ├── migrations/          # Flask-Migrate (Alembic)
 ├── desktop/             # ứng dụng Tkinter + client urllib
-└── tests/               # pytest: 70 test
+└── tests/               # pytest: 72 test
 ```
 
 ## CV PDF của sinh viên
@@ -66,7 +66,7 @@ Tài khoản demo `sv@unijob.vn` có sẵn một CV mẫu sau khi chạy `flask 
 
 ## Biến môi trường chính
 `SECRET_KEY`, `DATABASE_URL` (production, vd Postgres), `CV_STORAGE` (`disk`/`db`), `DEV_DATABASE_URL` (vd `mysql+pymysql://user:pass@localhost/unijob`), `MAIL_SERVER`, `MAIL_USERNAME`,
-`MAIL_PASSWORD` (không đặt MAIL_SERVER → email lưu ở `instance/outbox`, xem tại Quản trị › Hộp thư đi),
+`MAIL_PASSWORD`, `BREVO_API_KEY` (gửi mail qua API Brevo khi host chặn SMTP; không đặt MAIL_SERVER/BREVO_API_KEY → email lưu ở `instance/outbox`, xem tại Quản trị › Hộp thư đi),
 `EXCHANGE_API_KEY`, `NETWORK_ENABLED`, `LLM_PROVIDER` (`demo`/`ollama`/`openai`), `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`.
 
 ## REST API

@@ -120,3 +120,39 @@ def test_rss_parse_and_fallback(app, server):
     app.config['NEWS_RSS_URL'] = server + '/500'
     http_client.clear_cache()
     assert news.get_news()['live'] is False
+
+
+def test_email_sent_via_brevo_api(app, monkeypatch):
+    """Có BREVO_API_KEY: email gửi bằng POST JSON tới Brevo (khóa trong header), vẫn lưu bản sao ở outbox."""
+    import os
+    from app import email as email_mod
+    calls = []
+
+    def fake_post(url, payload, headers=None, timeout=None):
+        calls.append((url, payload, headers))
+        return {'messageId': '<abc@brevo>'}
+
+    monkeypatch.setattr(email_mod, 'post_json', fake_post)
+    app.config.update(BREVO_API_KEY='xkeysib-test', MAIL_DEFAULT_SENDER='UniJob <unijob.demo@gmail.com>')
+    with app.test_request_context():
+        email_mod.send_email('sv@test.vn', 'Xác nhận tài khoản', 'email/confirm',
+                             user=type('U', (), {'full_name': 'SV'})(), link='https://x/confirm/t')
+    url, payload, headers = calls[0]
+    assert url == email_mod.BREVO_URL and headers == {'api-key': 'xkeysib-test'}
+    assert payload['sender'] == {'name': 'UniJob', 'email': 'unijob.demo@gmail.com'}
+    assert payload['to'] == [{'email': 'sv@test.vn'}] and 'https://x/confirm/t' in payload['textContent']
+    assert payload['subject'].startswith('[UniJob]')
+    assert os.listdir(os.path.join(app.instance_path, 'outbox'))
+
+
+def test_brevo_error_does_not_break_request(app, monkeypatch):
+    from app import email as email_mod
+    from app.net.http_client import NetworkError
+
+    def boom(*a, **k):
+        raise NetworkError('HTTP 401')
+
+    monkeypatch.setattr(email_mod, 'post_json', boom)
+    app.config['BREVO_API_KEY'] = 'sai'
+    with app.test_request_context():
+        email_mod.send_email('sv@test.vn', 'Test', 'email/confirm', user=type('U', (), {'full_name': 'SV'})(), link='l')

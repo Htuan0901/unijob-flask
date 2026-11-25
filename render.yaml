@@ -27,3 +27,8 @@ services:
         sync: false
       - key: EXCHANGE_API_KEY      # tùy chọn, để trống dùng open.er-api.com
         sync: false
+      # Gửi email thật qua API Brevo (Render free chặn SMTP). Để trống = email chỉ lưu ở Quản trị > Hộp thư đi
+      - key: BREVO_API_KEY
+        sync: false
+      - key: MAIL_DEFAULT_SENDER     # vd: UniJob <email-da-xac-minh-trong-brevo@gmail.com>
+        sync: false
