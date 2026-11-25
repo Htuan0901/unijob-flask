@@ -55,3 +55,11 @@ def test_messages_contain_numbered_context(app):
     hits = rag.get_index(rebuild=True).search('tra cứu lương', k=2)
     msgs = rag.build_messages('Lương?', hits, [{'q': 'a', 'a': 'b'}])
     assert msgs[0]['role'] == 'system' and '[1]' in msgs[-1]['content'] and len(msgs) == 4
+
+
+def test_expand_query_abbreviations_and_district():
+    from app.ai.rag import expand_query
+    q = expand_query('Có việc cho TTS CNTT ở Gò Vấp không?')
+    assert 'thực tập sinh' in q and 'công nghệ thông tin' in q and 'TP. Hồ Chí Minh' in q
+    assert 'phân tích nghiệp vụ' in expand_query('việc BA')
+    assert expand_query('ba mẹ tôi') == 'ba mẹ tôi'      # "ba" thường không phải BA
